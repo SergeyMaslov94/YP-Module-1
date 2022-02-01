@@ -76,7 +76,7 @@ enum class DocumentStatus {
 class SearchServer {
 public:
 
-    // Конструктор
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
     explicit SearchServer( const string& text )
     {
         for (const string& word : SplitIntoWords(text)) {
@@ -283,7 +283,7 @@ void PrintDocument(const Document& document) {
 }
 int top_1_lesson_6() 
 {
-    const set<string> stop_words_set = { "и"s, "в"s, "на"s, ""s};
+    const set<string> stop_words_set = { "Рё"s, "РІ"s, "РЅР°"s, ""s};
     SearchServer search_server(stop_words_set);
 
     search_server.AddDocument(0, "belyj kot i modnyj oshejnik"s, DocumentStatus::ACTUAL, { 8, -3 });

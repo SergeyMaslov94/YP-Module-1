@@ -1,4 +1,4 @@
-// Перегрузка операторов ввода-вывода
+// РџРµСЂРµРіСЂСѓР·РєР° РѕРїРµСЂР°С‚РѕСЂРѕРІ РІРІРѕРґР°-РІС‹РІРѕРґР°
 #include <iostream>
 #include <vector>
 #include <string>
@@ -19,28 +19,28 @@ struct MyValue
 
 ostream& operator<<(ostream& output, const MyValue& values) 
 {
-    /* Выводим содержимое объекта value в output */
+    /* Р’С‹РІРѕРґРёРј СЃРѕРґРµСЂР¶РёРјРѕРµ РѕР±СЉРµРєС‚Р° value РІ output */
    
     output << values.first << ", ";
     output << values.second << ", ";
     output << values.third;
 
-    // Оператор должен вернуть ссылку на переданный поток вывода
+    // РћРїРµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РїРµСЂРµРґР°РЅРЅС‹Р№ РїРѕС‚РѕРє РІС‹РІРѕРґР°
     return output;
 }
 
 istream& operator>>(istream& input, MyValue& values) 
 {
-    /* Выводим содержимое объекта value в output */
+    /* Р’С‹РІРѕРґРёРј СЃРѕРґРµСЂР¶РёРјРѕРµ РѕР±СЉРµРєС‚Р° value РІ output */
     input >> values.first;
     input >> values.second;
     input >> values.third;
 
-    // Оператор должен вернуть ссылку на переданный поток вывода
+    // РћРїРµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РїРµСЂРµРґР°РЅРЅС‹Р№ РїРѕС‚РѕРє РІС‹РІРѕРґР°
     return input;
 }
 
-int top_2_theory_1()
+int top_2_theory_2()
 {
     MyValue my_values;
 

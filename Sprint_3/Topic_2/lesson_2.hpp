@@ -1,4 +1,4 @@
-// Перегрузка операторов ввода-вывода
+// РџРµСЂРµРіСЂСѓР·РєР° РѕРїРµСЂР°С‚РѕСЂРѕРІ РІРІРѕРґР°-РІС‹РІРѕРґР°
 #include <iostream>
 #include <vector>
 #include <string>
@@ -46,34 +46,36 @@ private:
 
 ostream& operator<<(ostream& output, const Rational& rational)
 {
-    /* Выводим содержимое объекта value в output */
+    /* Р’С‹РІРѕРґРёРј СЃРѕРґРµСЂР¶РёРјРѕРµ РѕР±СЉРµРєС‚Р° value РІ output */
     output << rational.Numerator() << "/";
     output << rational.Denominator();
 
-    // Оператор должен вернуть ссылку на переданный поток вывода
+    // РћРїРµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РїРµСЂРµРґР°РЅРЅС‹Р№ РїРѕС‚РѕРє РІС‹РІРѕРґР°
     return output;
 }
 
 istream& operator>>(istream& input, Rational& rational)
 {
-    /* Выводим содержимое объекта value в output */
+    /* Р’С‹РІРѕРґРёРј СЃРѕРґРµСЂР¶РёРјРѕРµ РѕР±СЉРµРєС‚Р° value РІ output */
     int x, y = 0;
+    char comma; // РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ СЃС‡РёС‚С‹РІР°РЅРёСЏ Р·Р°РїСЏС‚РѕР№
 
-    input >> x;
-    input >> y;
+    input >> x >> comma >> y;
 
     rational = Rational(x,y);
 
-    // Оператор должен вернуть ссылку на переданный поток вывода
+    // РћРїРµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РїРµСЂРµРґР°РЅРЅС‹Р№ РїРѕС‚РѕРє РІС‹РІРѕРґР°
     return input;
 }
 
-int top_2_lesson_1()
+int top_2_lesson_2()
 {
-    Rational rational;
+    Rational rational1;
+    Rational rational2;
 
-    std::cin >> rational;
-    std::cout << rational;
+    std::cin >> rational1 >> rational2;
+
+    std::cout << rational1 << " "s << rational2;
 
     return 0;
 }

@@ -1,4 +1,4 @@
-// Шаблоны Функций: Специализация шаблонов
+// РЁР°Р±Р»РѕРЅС‹ Р¤СѓРЅРєС†РёР№: РЎРїРµС†РёР°Р»РёР·Р°С†РёСЏ С€Р°Р±Р»РѕРЅРѕРІ
 
 #include <algorithm>
 #include <iostream>
@@ -13,16 +13,16 @@ struct Animal {
 };
 
 enum class AnimalSortKey {
-    AGE,     // по полю age
-    WEIGHT,  // по полю weight
-    RELATIVE_WEIGHT  // по weight / age
+    AGE,     // РїРѕ РїРѕР»СЋ age
+    WEIGHT,  // РїРѕ РїРѕР»СЋ weight
+    RELATIVE_WEIGHT  // РїРѕ weight / age
 };
 
-// Версия функции SortBy для "любых" аргументов 
+// Р’РµСЂСЃРёСЏ С„СѓРЅРєС†РёРё SortBy РґР»СЏ "Р»СЋР±С‹С…" Р°СЂРіСѓРјРµРЅС‚РѕРІ 
 template <typename Container, typename KeyMapper>
 void SortBy(Container& container, KeyMapper key_mapper, bool reverse = false) {
-    // теперь можно сортировать контейнер
-    // с компаратором key_mapper(lhs) < key_mapper(rhs)
+    // С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ РєРѕРЅС‚РµР№РЅРµСЂ
+    // СЃ РєРѕРјРїР°СЂР°С‚РѕСЂРѕРј key_mapper(lhs) < key_mapper(rhs)
     sort(container.begin(), container.end(), [key_mapper, reverse](const auto& lhs, const auto& rhs)
     { 
         if(reverse)
@@ -33,7 +33,7 @@ void SortBy(Container& container, KeyMapper key_mapper, bool reverse = false) {
 
 }
 
-// Конкретная версия функции SortBy для конкретных аргументов
+// РљРѕРЅРєСЂРµС‚РЅР°СЏ РІРµСЂСЃРёСЏ С„СѓРЅРєС†РёРё SortBy РґР»СЏ РєРѕРЅРєСЂРµС‚РЅС‹С… Р°СЂРіСѓРјРµРЅС‚РѕРІ
 void SortBy(vector <Animal>& animals, AnimalSortKey sort_key, bool reverse = false)
 {
     switch (sort_key) {

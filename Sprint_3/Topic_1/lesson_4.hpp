@@ -1,7 +1,7 @@
-// Урок 4. Список инициализаций конструктора
+// вЂќСЂРѕРє 4. вЂ”РїРёСЃРѕРє РёРЅРёС†РёР°Р»РёР·Р°С†РёР№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°
 
 /*
-Перепишите конструкторы класса Rational, чтобы инициализация его полей выполнялась в списках инициализации.
+С•РµСЂРµРїРёС€РёС‚Рµ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹ РєР»Р°СЃСЃР° Rational, С‡С‚РѕР±С‹ РёРЅРёС†РёР°Р»РёР·Р°С†РёВ¤ РµРіРѕ РїРѕР»РµР№ РІС‹РїРѕР»РЅВ¤Р»Р°СЃСЊ РІ СЃРїРёСЃРєР°С… РёРЅРёС†РёР°Р»РёР·Р°С†РёРё.
 */
 
 #include <vector>
@@ -21,7 +21,7 @@ public:
     }
 
     //-----------------------------------------------
-    // конструкторы класса Rational
+    // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹ РєР»Р°СЃСЃР° Rational
 
     Rational():
         numerator_(0),
@@ -62,25 +62,25 @@ Rational Add(Rational r1, Rational r2) {
     int numerator = r1.Numerator() * r2.Denominator() + r2.Numerator() * r1.Denominator();
     int denominator = r1.Denominator() * r2.Denominator();
 
-    // Создаём и возвращаем дробь с заданным числителем и знаменателем
+    // вЂ”РѕР·РґР°Р„Рј Рё РІРѕР·РІСЂР°С‰Р°РµРј РґСЂРѕР±СЊ СЃ Р·Р°РґР°РЅРЅС‹Рј С‡РёСЃР»РёС‚РµР»РµРј Рё Р·РЅР°РјРµРЅР°С‚РµР»РµРј
     return Rational{ numerator, denominator };
 }
 
 int top_1_lesson_4()
 {
-    Rational zero;     // Дробь 0/1 = 0
-    const Rational seven(7); // Дробь 7/1 = 7
-    const Rational one_third(1, 3); // Дробь 1/3
+    Rational zero;     // Ж’СЂРѕР±СЊ 0/1 = 0
+    const Rational seven(7); // Ж’СЂРѕР±СЊ 7/1 = 7
+    const Rational one_third(1, 3); // Ж’СЂРѕР±СЊ 1/3
 
     vector<Rational> numbers;
     numbers.push_back(Rational{ 7, 8 });
 
-    // Следующие 2 строки эквивалентны - добавляют в numbers дробь 3/1
+    // вЂ”Р»РµРґСѓСЋС‰РёРµ 2 СЃС‚СЂРѕРєРё СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹ - РґРѕР±Р°РІР»В¤СЋС‚ РІ numbers РґСЂРѕР±СЊ 3/1
     numbers.push_back(Rational{ 3 });
     numbers.push_back(3);
 
     Rational sum = Add(Rational{ 1,-6 }, one_third);
-    // Выведет 1/2
+    // В¬С‹РІРµРґРµС‚ 1/2
     cout << sum.Numerator() << "/" << sum.Denominator();
 
     return 0;

@@ -14,12 +14,12 @@ int run() {
     
     const vector<vector<string>> documents = 
     {
-        {"белый"s, "кот"s, "и"s, "модный"s, "ошейник"s},
-        {"пушистый"s, "кот"s, "пушистый"s, "хвост"s},
-        {"ухоженный"s, "пёс"s, "выразительные"s, "глаза"s},
+        {"Р±РµР»С‹Р№"s, "РєРѕС‚"s, "Рё"s, "РјРѕРґРЅС‹Р№"s, "РѕС€РµР№РЅРёРє"s},
+        {"РїСѓС€РёСЃС‚С‹Р№"s, "РєРѕС‚"s, "РїСѓС€РёСЃС‚С‹Р№"s, "С…РІРѕСЃС‚"s},
+        {"СѓС…РѕР¶РµРЅРЅС‹Р№"s, "РїС‘СЃ"s, "РІС‹СЂР°Р·РёС‚РµР»СЊРЅС‹Рµ"s, "РіР»Р°Р·Р°"s},
     };
 
-    const auto& tf_idfs = ComputeTfIdfs(documents, "кот"s);
+    const auto& tf_idfs = ComputeTfIdfs(documents, "РєРѕС‚"s);
     
     for (const double tf_idf : tf_idfs) {
         cout << tf_idf << " "s;

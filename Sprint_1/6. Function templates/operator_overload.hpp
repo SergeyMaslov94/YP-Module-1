@@ -53,7 +53,7 @@ int run() {
     const vector<int> ages = { 10, 5, 2, 12 };
     cout << ages << endl;
 
-    const set<string> cats = { "Мурка"s, "Белка"s, "Георгий"s, "Рюрик"s };
+    const set<string> cats = { "РњСѓСЂРєР°"s, "Р‘РµР»РєР°"s, "Р“РµРѕСЂРіРёР№"s, "Р СЋСЂРёРє"s };
     cout << cats << endl;
 
     const map<string, int> cat_ages = {

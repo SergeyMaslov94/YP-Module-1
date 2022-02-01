@@ -17,7 +17,7 @@ map<Term, int> ComputeTermFreqs(const vector<Term>& terms) {
 }
 
 pair<string, int> FindMaxFreqAnimal(const vector<pair<string, int>>& animals) {
-    // верните животного с максимальной частотой
+    // РІРµСЂРЅРёС‚Рµ Р¶РёРІРѕС‚РЅРѕРіРѕ СЃ РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ С‡Р°СЃС‚РѕС‚РѕР№
     map<pair<string, int>, int> term_freqs = ComputeTermFreqs(animals);
 
     int max_value = term_freqs.at(animals[0]);
