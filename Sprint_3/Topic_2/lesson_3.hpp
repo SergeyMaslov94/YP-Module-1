@@ -83,6 +83,32 @@ istream& operator>>(istream& input, Rational& rational)
     return input;
 }
 
+//----------------------------------------------
+// Перегрузка операции вычитания для типа Rational
+Rational operator-(Rational left, Rational right)
+{
+    const int numerator = left.Numerator() * right.Denominator() -
+            right.Numerator() * left.Denominator();
+
+    const int denominator = left.Denominator() * right.Denominator();
+
+    return {numerator, denominator};
+}
+
+//----------------------------------------------
+// Перегрузка операции унарного плюса для типа Rational
+Rational operator+(Rational r)
+{
+    return r;
+}
+
+//----------------------------------------------
+// Перегрузка операции унарного минуса для типа Rational
+Rational operator-(Rational v) {
+    return{-v.Numerator(), v.Denominator()};
+}
+
+
 int top_2_lesson_3()
 {
     Rational rational1;
@@ -91,6 +117,10 @@ int top_2_lesson_3()
     std::cin >> rational1 >> rational2;
 
     auto sum  = rational1 + rational2;
+    auto def  = rational2 - rational1;
+
+    Rational r_plus = + rational1;
+    Rational r_minus = - rational1;
 
     std::cout << sum;
 
