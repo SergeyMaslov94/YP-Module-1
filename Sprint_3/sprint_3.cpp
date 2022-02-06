@@ -13,7 +13,12 @@
 //#include "Topic_2/lesson_4.hpp"
 //#include "Topic_2/lesson_5.hpp"
 
-#include "Topic_3/lesson_2.hpp"
+//#include "Topic_3/lesson_2.hpp"
+//#include "Topic_3/lesson_3.hpp"
+//#include "Topic_3/lesson_4.hpp"
+//#include "Topic_3/theory_5.hpp"
+//#include "Topic_3/lesson_5.hpp"
+#include "Topic_3/lesson_6.hpp"
 
 int main()
 {
@@ -36,7 +41,11 @@ int main()
     //top_2_lesson_5();     // перегрузка операций сравнения
 
     /* Topic_3:  Обработка ошибок, исключения */
-    top_3_lesson_2();
+    //top_3_lesson_2(); // используем для обработки ошибок коды возврата
+    //top_3_lesson_3();   // применяем класс optional
+    //top_3_lesson_4(); // введение в исключения
+    //top_3_theory_5();  // исключения в конструкторе и деструкторе
+    top_3_lesson_6();  // исключения в конструкторе и деструкторе
 
 	/* Поисковая система */
 	//run();

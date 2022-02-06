@@ -1,13 +1,11 @@
-// Используем для обработки ошибок коды возврата
+// Применяем класс optional
 
 /*
- Задание
-Сделайте поисковую систему надёжнее, добавив в методы AddDocument, MatchDocument и FindTopDocuments обработку следующих ошибок:
-- Указание в поисковом запросе более чем одного минуса перед словами, которых не должно быть в документах, например: кот --пушистый. В середине слов минусы разрешаются, например: иван-чай.
-- Отсутствие в поисковом запросе текста после символа «минус», например кот -.
-- Наличие спецсимволов — то есть символов с кодами в диапазоне от 0 до 31 включительно — в тексте документов и поискового запроса.
-- Попытка добавить документ с отрицательным id.
-- Попытка добавить документ с id, совпадающим с id документа, который добавился ранее.
+Задание:
+Упростите код поисковой системы, используя класс optional для возврата значений.
+Для этого обновите сигнатуру методов MatchDocument и FindTopDocuments, чтобы они возвращали результаты в виде опционального значения.
+В случае ошибки эти методы должны возвращать значение nullopt, а результаты их работы не должны выводиться в стандартный поток вывода.
+Метод AddDocument по-прежнему должен возвращать значение типа bool: true в случае успеха и false в случае неудачи
  */
 
 #include <algorithm>
@@ -18,6 +16,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <optional>
 
 using namespace std;
 
@@ -141,11 +140,11 @@ public:
     }
 
     template <typename DocumentPredicate>
-    [[nodiscard]] bool FindTopDocuments(const string& raw_query, DocumentPredicate document_predicate, vector<Document>& result) const {
+    optional<vector<Document>> FindTopDocuments(const string& raw_query, DocumentPredicate document_predicate) const {
         Query query;
 
         if(!ParseQuery(raw_query, query))
-            return false;
+            return nullopt;
 
         auto matched_documents = FindAllDocuments(query, document_predicate);
 
@@ -160,18 +159,17 @@ public:
             matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
         }
 
-        result = matched_documents;
-        return true;
+        return matched_documents;
     }
 
-    [[nodiscard]] bool FindTopDocuments(const string& raw_query, DocumentStatus status,  vector<Document>& result) const {
+    optional<vector<Document>> FindTopDocuments(const string& raw_query, DocumentStatus status) const {
         return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
             return document_status == status;
-        }, result);
+        });
     }
 
-    [[nodiscard]] bool FindTopDocuments(const string& raw_query, vector<Document>& result) const {
-        return FindTopDocuments(raw_query, DocumentStatus::ACTUAL, result);
+    optional<vector<Document>> FindTopDocuments(const string& raw_query) const {
+        return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
     }
 
     int GetDocumentCount() const {
@@ -186,11 +184,10 @@ public:
         return INVALID_DOCUMENT_ID;
     }
 
-    [[nodiscard]] bool MatchDocument(const string& raw_query, int document_id,
-                                    tuple<vector<string>, DocumentStatus> result) const {
+    optional<tuple<vector<string>, DocumentStatus>> MatchDocument(const string& raw_query, int document_id) const {
         Query query;
         if(!ParseQuery(raw_query, query))
-            return false;
+            return nullopt;
 
         vector<string> matched_words;
         for (const string& word : query.plus_words) {
@@ -211,8 +208,8 @@ public:
             }
         }
 
-        result = {matched_words, documents_.at(document_id).status};
-        return true;
+        tuple<vector<string>, DocumentStatus> match_documents{ matched_words, documents_.at(document_id).status };
+        return  match_documents;
     }
 
 private:
@@ -348,66 +345,34 @@ void PrintDocument(const Document& document) {
          << "rating = "s << document.rating << " }"s << endl;
 }
 
-int top_3_lesson_2() {
+int top_3_lesson_3()
+{
     SearchServer search_server("и в на"s);
 
     // Явно игнорируем результат метода AddDocument, чтобы избежать предупреждения
     // о неиспользуемом результате его вызова
-    (void) search_server.AddDocument(99, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
+    (void) search_server.AddDocument(1, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
 
-    if (!search_server.AddDocument(1, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {1, 2})) {
-        cout << "Документ не был добавлен, так как его id совпадает с уже имеющимся"s << endl;
+    if (!search_server.AddDocument(1, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2})) {
+        cout << "Документ не был добавлен, так его id совпадает с уже имеющимся"s << endl;
     }
 
     if (!search_server.AddDocument(-1, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2})) {
-        cout << "Документ не был добавлен, так как его id отрицательный"s << endl;
+        cout << "Документ не был добавлен, так его id отрицательный"s << endl;
     }
 
     if (!search_server.AddDocument(3, "большой пёс скво\x12рец"s, DocumentStatus::ACTUAL, {1, 3, 2})) {
         cout << "Документ не был добавлен, так как содержит спецсимволы"s << endl;
     }
 
-    if(!search_server.AddDocument(33, "белый кот и модный ошейник"s, DocumentStatus::ACTUAL, {8, -3})) {
-        cout << "Ошибка! Не добавлен документ!"s << endl;
-    }
 
-    vector<Document> documents;
-    if (search_server.FindTopDocuments("--пушистый"s, documents)) {
-        for (const Document& document : documents) {
+    if (const auto documents = search_server.FindTopDocuments("--пушистый"s)) {
+        for (const Document& document : *documents) {
             PrintDocument(document);
         }
     } else {
         cout << "Ошибка в поисковом запросе"s << endl;
     }
-
-    auto result = search_server.GetDocumentId(3);
-    /*
-
-    search_server.AddDocument(0, "белый кот и модный ошейник"s, DocumentStatus::ACTUAL, {8, -3});
-    search_server.AddDocument(0, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
-    search_server.AddDocument(2, "ухоженный пёс выразительные глаза"s, DocumentStatus::ACTUAL, {5, -12, 2, 1});
-    search_server.AddDocument(3, "ухоженный скворец евгений"s, DocumentStatus::BANNED, {9});
-
-    cout << "ACTUAL by default:"s << endl;
-    for (const Document& document : search_server.FindTopDocuments("пушистый ухоженный кот"s)) {
-        PrintDocument(document);
-    }
-
-    cout << "BANNED:"s << endl;
-    for (const Document& document : search_server.FindTopDocuments("пушистый ухоженный кот"s, DocumentStatus::BANNED)) {
-        PrintDocument(document);
-    }
-
-    cout << "Even ids:"s << endl;
-    for (const Document &document :
-            search_server.FindTopDocuments("пушистый ухоженный кот"s,
-                                           [](int document_id, DocumentStatus status, int rating) {
-                                               return document_id % 2 == 0;
-                                           }))  //
-    {
-        PrintDocument(document);
-    }
-     */
 
     return 0;
 }
