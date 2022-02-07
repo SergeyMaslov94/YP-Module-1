@@ -3,8 +3,6 @@
 //#include "Topic_1/lesson_6.hpp"
 //#include "Topic_1/theory_7.hpp"
 
-//#include "../SearchServer.hpp"
-
 //#include "Topic_2/theory_2.hpp"
 //#include "Topic_2/theory_3.hpp"
 //#include "Topic_2/theory_3_1.hpp"
@@ -18,7 +16,9 @@
 //#include "Topic_3/lesson_4.hpp"
 //#include "Topic_3/theory_5.hpp"
 //#include "Topic_3/lesson_5.hpp"
-#include "Topic_3/lesson_6.hpp"
+//#include "Topic_3/lesson_6.hpp"
+
+#include "../SearchServer.hpp"
 
 int main()
 {
@@ -45,10 +45,10 @@ int main()
     //top_3_lesson_3();   // применяем класс optional
     //top_3_lesson_4(); // введение в исключения
     //top_3_theory_5();  // исключения в конструкторе и деструкторе
-    top_3_lesson_6();  // исключения в конструкторе и деструкторе
+    //top_3_lesson_6();  // Обработка ошибок/исключений в поисковой системе
 
 	/* Поисковая система */
-	//run();
+	run();
 
 	return 0;
 }
