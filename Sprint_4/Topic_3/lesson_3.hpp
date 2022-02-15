@@ -1,5 +1,5 @@
 //============================================================================
-// Урок 9. Выводим результаты поиска страницами
+// Урок 4. Очередь запросов
 
 #include <algorithm>
 #include <cassert>
@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <deque>
 
 using namespace std;
 
@@ -74,9 +75,9 @@ vector<string> SplitIntoWords(const string& text) {
 
 struct Document {
     Document() :
-        id(0),
-        relevance(0.0),
-        rating(0)
+            id(0),
+            relevance(0.0),
+            rating(0)
     {}
 
     Document(int id_m, double relevance_m, int rating_m) {
@@ -115,7 +116,7 @@ class SearchServer {
 public:
     // Конструктор
     explicit SearchServer()
-        = default;
+    = default;
 
     explicit SearchServer(const string& text) {
         for (const string& word : SplitIntoWords(text)) {
@@ -195,7 +196,7 @@ public:
             else {
                 return lhs.relevance > rhs.relevance;
             }
-            });
+        });
         // Отсатвляем только первые MAX_RESULT_DOCUMENT_COUNT документов
         if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
             matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
@@ -254,7 +255,7 @@ private:
         // A valid word must not contain special characters
         return none_of(word.begin(), word.end(), [](char c) {
             return c >= '\0' && c < ' ';
-            });
+        });
     }
 
     bool IsStopWord(const string& word) const {
@@ -372,17 +373,17 @@ private:
 
 //==============================================================
 /* Класс для хранения пары итераторов.Используется для
-   разделения документов из результата на отдельные страницы 
+   разделения документов из результата на отдельные страницы
  */
- //==============================================================
+//==============================================================
 template <typename Iterator>
 class IteratorRange
 {
 public:
-    IteratorRange(Iterator begin, Iterator end) : 
-        start_(begin),
-        stop_(end),
-        size_range_(distance(start_, stop_)) {
+    IteratorRange(Iterator begin, Iterator end) :
+            start_(begin),
+            stop_(end),
+            size_range_(distance(start_, stop_)) {
     }
 
     Iterator begin() const{
@@ -422,19 +423,19 @@ ostream& operator<<(ostream& out, const Document& document) {
 
 void PrintDocument(const Document& document) {
     cout << "{ "s
-        << "document_id = "s << document.id << ", "s
-        << "relevance = "s << document.relevance << ", "s
-        << "rating = "s << document.rating << " }"s << endl;
+         << "document_id = "s << document.id << ", "s
+         << "relevance = "s << document.relevance << ", "s
+         << "rating = "s << document.rating << " }"s << endl;
 }
 
 //==============================================================
-/* Класс разделяет документы из результата на отдельные страницы 
+/* Класс разделяет документы из результата на отдельные страницы
 */
 //==============================================================
 
 template <typename Iterator>
 class Paginator {
-public: 
+public:
     Paginator(Iterator begin, Iterator end, size_t page_size) {
         for (size_t left = distance(begin, end); left > 0;) {
             const size_t current_page_size = min(page_size, left);
@@ -468,25 +469,90 @@ auto Paginate(const Container& c, size_t page_size) {
     return Paginator(begin(c), end(c), page_size);
 }
 //==============================================================
-
-int top_1_lesson_9() {
-    SearchServer search_server("and with"s);
-
-    search_server.AddDocument(1, "funny pet and nasty rat"s, DocumentStatus::ACTUAL, { 7, 2, 7 });
-    search_server.AddDocument(2, "funny pet with curly hair"s, DocumentStatus::ACTUAL, { 1, 2, 3 });
-    search_server.AddDocument(3, "big cat nasty hair"s, DocumentStatus::ACTUAL, { 1, 2, 8 });
-    search_server.AddDocument(4, "big dog cat Vladislav"s, DocumentStatus::ACTUAL, { 1, 3, 2 });
-    search_server.AddDocument(5, "big dog hamster Borya"s, DocumentStatus::ACTUAL, { 1, 1, 1 });
-
-    const auto search_results = search_server.FindTopDocuments("curly dog"s);
-
-    int page_size = 2;
-    const auto pages = Paginate(search_results, page_size);
-
-    for (auto page = pages.begin(); page != pages.end(); ++page) {
-        cout << *page << endl;
-        cout << "Page break"s << endl;
+/* Класс определяет очередь запросов
+Класс RequestQueue должен уметь ответить на вопрос, сколько за
+ последние сутки было запросов, на которые ничего не нашлось.
+ */
+//==============================================================
+class RequestQueue {
+public:
+    explicit RequestQueue(const SearchServer& search_server):
+    search_server_(search_server),
+    min_pass(0)
+    {}
+    // сделаем "обёртки" для всех методов поиска, чтобы сохранять результаты для нашей статистики
+    template <typename DocumentPredicate>
+    vector<Document> AddFindRequest(const string& raw_query, DocumentPredicate document_predicate) {
+        auto documents = search_server_.FindTopDocuments(raw_query, document_predicate);
+        return documents;
     }
+
+    vector<Document> AddFindRequest(const string& raw_query, DocumentStatus status) {
+        auto documents =  search_server_.FindTopDocuments(raw_query, status);
+        return documents;
+    }
+
+    vector<Document> AddFindRequest(const string& raw_query) {
+        min_pass++;
+
+        QueryResult query_results;
+        query_results.search_results = search_server_.FindTopDocuments(raw_query);
+
+        if(query_results.search_results.empty())
+            query_results.is_empty_result = true;
+
+        if(min_pass < min_in_day_)
+            requests_.push_back(query_results);
+        else {
+            requests_.push_back(query_results);
+            requests_.pop_front();
+        }
+
+        return query_results.search_results;
+    }
+
+    int GetNoResultRequests() const {
+        return 0;
+    }
+private:
+    const SearchServer& search_server_;
+
+    struct QueryResult {
+        vector<Document> search_results;
+        bool is_empty_result = false;
+    };
+    deque<QueryResult> requests_;
+
+    const static int min_in_day_ = 1440;
+
+    int min_pass;
+};
+//==============================================================
+/* Пример для отладки
+*/
+//==============================================================
+int top_3_lesson_3() {
+    SearchServer search_server("and in at"s);
+    RequestQueue request_queue(search_server);
+
+    search_server.AddDocument(1, "curly cat curly tail"s, DocumentStatus::ACTUAL, {7, 2, 7});
+    search_server.AddDocument(2, "curly dog and fancy collar"s, DocumentStatus::ACTUAL, {1, 2, 3});
+    search_server.AddDocument(3, "big cat fancy collar "s, DocumentStatus::ACTUAL, {1, 2, 8});
+    search_server.AddDocument(4, "big dog sparrow Eugene"s, DocumentStatus::ACTUAL, {1, 3, 2});
+    search_server.AddDocument(5, "big dog sparrow Vasiliy"s, DocumentStatus::ACTUAL, {1, 1, 1});
+
+    // 1439 запросов с нулевым результатом
+    for (int i = 0; i < 1439; ++i) {
+        auto documents = request_queue.AddFindRequest("empty request"s);
+    }
+    // все еще 1439 запросов с нулевым результатом
+    request_queue.AddFindRequest("curly dog"s);
+    // новые сутки, первый запрос удален, 1438 запросов с нулевым результатом
+    request_queue.AddFindRequest("big collar"s);
+    // первый запрос удален, 1437 запросов с нулевым результатом
+    request_queue.AddFindRequest("sparrow"s);
+    // TODO::
+    cout << "Total empty requests: "s << request_queue.GetNoResultRequests() << endl;
 
     return 0;
 }

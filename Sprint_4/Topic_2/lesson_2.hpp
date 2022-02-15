@@ -1,12 +1,12 @@
 //==========================================
-// Урок 2. Поиск в неотсортированном векторе
+// РЈСЂРѕРє 2. РџРѕРёСЃРє РІ РЅРµРѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРј РІРµРєС‚РѕСЂРµ
 #include <string>
 #include <iostream>
 #include <algorithm>
 using namespace std;
 
 void PrintSpacesPositions(string& str) {
-    // напишите реализацию
+    // РЅР°РїРёС€РёС‚Рµ СЂРµР°Р»РёР·Р°С†РёСЋ
     auto begin = str.begin();
     auto end = str.end();
     auto size = distance(begin, end);
