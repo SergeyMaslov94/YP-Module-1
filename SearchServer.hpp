@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <deque>
 
 using namespace std;
 
@@ -1032,8 +1033,77 @@ template <typename Container>
 auto Paginate(const Container& c, size_t page_size) {
     return Paginator(begin(c), end(c), page_size);
 }
-//==============================================================
 
+//==============================================================
+/* Класс определяет очередь запросов и  является "оберткой" для методов поиска
+
+Метод GetNoResultRequests возвращает сколько за
+последние сутки (min_in_day_) было запросов, на которые
+ничего не нашлось.
+ */
+//==============================================================
+class RequestQueue {
+public:
+    explicit RequestQueue(const SearchServer& search_server):
+            search_server_(search_server),
+            min_pass_(0),
+            count_no_result_(0)
+    {}
+    // сделаем "обёртки" для всех методов поиска, чтобы сохранять результаты для нашей статистики
+    template <typename DocumentPredicate>
+    vector<Document> AddFindRequest(const string& raw_query, DocumentPredicate document_predicate) {
+        return AddRequest(search_server_.FindTopDocuments(raw_query, document_predicate));
+    }
+
+    vector<Document> AddFindRequest(const string& raw_query, DocumentStatus status) {
+        return AddRequest(search_server_.FindTopDocuments(raw_query, status));
+    }
+
+    vector<Document> AddFindRequest(const string& raw_query) {
+        return AddRequest(search_server_.FindTopDocuments(raw_query));
+    }
+
+    int GetNoResultRequests() const {
+        return count_no_result_;
+    }
+private:
+    const SearchServer& search_server_;
+    const static int min_in_day_ = 1440;
+
+    struct QueryResult {
+        vector<Document> search_results;
+        bool is_empty_result = false;
+    };
+
+    deque<QueryResult> requests_;
+    int min_pass_;
+    int count_no_result_;
+
+    // метод добавляет результаты поиска в очередь хранения
+    vector<Document> AddRequest(vector<Document> search_results) {
+        QueryResult query_results;
+        query_results.search_results = search_results;
+        min_pass_++;
+
+        if(query_results.search_results.empty()) {
+            query_results.is_empty_result = true;
+            count_no_result_++;
+        }
+
+        if(min_pass_ <= min_in_day_)
+            requests_.push_back(query_results);
+        else {
+            if(requests_.front().is_empty_result) {
+                count_no_result_--;
+            }
+            requests_.pop_front();
+            requests_.push_back(query_results);
+        }
+
+        return search_results;
+    }
+};
+//==============================================================
 int run() 
 {
     // ТЕСТИРОВАНИЕ
@@ -1044,6 +1114,7 @@ int run()
     // ОТЛАДКА
     try {
         SearchServer search_server("and with"s);
+        RequestQueue request_queue(search_server);
 
         search_server.AddDocument(1, "funny pet and nasty rat"s, DocumentStatus::ACTUAL, { 7, 2, 7 });
         search_server.AddDocument(2, "funny pet with curly hair"s, DocumentStatus::ACTUAL, { 1, 2, 3 });
@@ -1051,8 +1122,11 @@ int run()
         search_server.AddDocument(4, "big dog cat Vladislav"s, DocumentStatus::ACTUAL, { 1, 3, 2 });
         search_server.AddDocument(5, "big dog hamster Borya"s, DocumentStatus::ACTUAL, { 1, 1, 1 });
 
-        const auto search_results = search_server.FindTopDocuments("curly dog"s);
+        // Определяем, сколько запросов остались без ответа
+        const auto search_results = request_queue.AddFindRequest("curly dog"s);
+        cout << "Всего запросов, оставшихся без ответа: "s << request_queue.GetNoResultRequests() << endl;
 
+        // Разделяем вывод результатов поиска на отдельные страницы
         int page_size = 2;
         const auto pages = Paginate(search_results, page_size);
 

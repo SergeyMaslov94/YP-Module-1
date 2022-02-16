@@ -12,9 +12,9 @@
 //#include "Topic_3/lesson_1_2.hpp"
 //#include "Topic_3/lesson_1_3.hpp"
 //#include "Topic_3/lesson_2.hpp"
-#include "Topic_3/lesson_3.hpp"
+//#include "Topic_3/lesson_3.hpp"
 
-//#include "../SearchServer.hpp"
+#include "../SearchServer.hpp"
 
 int main()
 {
@@ -77,10 +77,10 @@ int main()
     //top_3_lesson_1_3();  // Отсртированный стек
 
     //top_3_lesson_2();      // Пишем очередь
-    top_3_lesson_3();      // Очередь запросов для SearchSystem
+    //top_3_lesson_3();        // Очередь запросов для SearchSystem
     //===============================================
     /* Поисковая система */
-	//run();
+	run();
 
 	return 0;
 }

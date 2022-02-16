@@ -478,54 +478,62 @@ class RequestQueue {
 public:
     explicit RequestQueue(const SearchServer& search_server):
     search_server_(search_server),
-    min_pass(0)
+    min_pass_(0),
+    count_no_result_(0)
     {}
     // сделаем "обёртки" для всех методов поиска, чтобы сохранять результаты для нашей статистики
     template <typename DocumentPredicate>
     vector<Document> AddFindRequest(const string& raw_query, DocumentPredicate document_predicate) {
-        auto documents = search_server_.FindTopDocuments(raw_query, document_predicate);
-        return documents;
+        return AddRequest(search_server_.FindTopDocuments(raw_query, document_predicate));
     }
 
     vector<Document> AddFindRequest(const string& raw_query, DocumentStatus status) {
-        auto documents =  search_server_.FindTopDocuments(raw_query, status);
-        return documents;
+        return AddRequest(search_server_.FindTopDocuments(raw_query, status));
     }
 
     vector<Document> AddFindRequest(const string& raw_query) {
-        min_pass++;
-
-        QueryResult query_results;
-        query_results.search_results = search_server_.FindTopDocuments(raw_query);
-
-        if(query_results.search_results.empty())
-            query_results.is_empty_result = true;
-
-        if(min_pass < min_in_day_)
-            requests_.push_back(query_results);
-        else {
-            requests_.push_back(query_results);
-            requests_.pop_front();
-        }
-
-        return query_results.search_results;
+        return AddRequest(search_server_.FindTopDocuments(raw_query));
     }
 
     int GetNoResultRequests() const {
-        return 0;
+        return count_no_result_;
     }
 private:
     const SearchServer& search_server_;
+    const static int min_in_day_ = 1440;
 
     struct QueryResult {
         vector<Document> search_results;
         bool is_empty_result = false;
     };
+
     deque<QueryResult> requests_;
+    int min_pass_;
+    int count_no_result_;
 
-    const static int min_in_day_ = 1440;
+    // метод добавляет результаты поиска в очередь хранения
+    vector<Document> AddRequest(vector<Document> search_results) {
+        QueryResult query_results;
+        query_results.search_results = search_results;
+        min_pass_++;
 
-    int min_pass;
+        if(query_results.search_results.empty()) {
+            query_results.is_empty_result = true;
+            count_no_result_++;
+        }
+
+        if(min_pass_ <= min_in_day_)
+            requests_.push_back(query_results);
+        else {
+            if(requests_.front().is_empty_result) {
+                count_no_result_--;
+            }
+            requests_.pop_front();
+            requests_.push_back(query_results);
+        }
+
+        return search_results;
+    }
 };
 //==============================================================
 /* Пример для отладки
