@@ -14,7 +14,9 @@
 //#include "Topic_3/lesson_2.hpp"
 //#include "Topic_3/lesson_3.hpp"
 
-#include "../SearchServer.hpp"
+#include "Topic_4/lesson_runner.hpp"
+
+//#include "../SearchServer.hpp"
 
 int main()
 {
@@ -78,9 +80,19 @@ int main()
 
     //top_3_lesson_2();      // Пишем очередь
     //top_3_lesson_3();        // Очередь запросов для SearchSystem
+
+    //===============================================
+    /* Топик_4: Распределение кода по файлам */
+    /*
+     В этом топике исходники разделены на заголовки и определения.
+     Для примера используется lesson_runner
+     */
+    lesson_runner();
     //===============================================
     /* Поисковая система */
-	run();
+	//run();
+
+
 
 	return 0;
 }
