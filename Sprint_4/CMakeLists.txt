@@ -13,6 +13,8 @@ set (SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Topic_4/carpenter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Topic_4/lesson_runner.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Topic_4/square_calculation.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Topic_4/ceiling.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Topic_4/roof.cpp
         )
 
 
