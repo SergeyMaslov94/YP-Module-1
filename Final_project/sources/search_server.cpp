@@ -1,11 +1,8 @@
 #include "search_server.h"
-#include "string_processing.h"
 #include <stdexcept>
-#include <algorithm>
+#include <numeric>
 //========================================================================================
 // public
-
-// Конструкторы класса
 SearchServer::SearchServer()
 = default;
 
@@ -19,7 +16,6 @@ SearchServer::SearchServer(const std::string &text) {
     }
 }
 
-// Метод добавления новых документов
 void SearchServer::AddDocument(
         int document_id,
         const std::string& document,
@@ -51,27 +47,22 @@ void SearchServer::AddDocument(
     document_ids_.push_back(document_id);
 }
 
-// Вариант FindTopDocuments в котором не указывается статус, а документы фильтруются по умолчанию (DocumentStatus::ACTIVE)
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query) const {
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
-// Вариант FindTopDocuments в котором документы фильтруются по статусу
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, DocumentStatus status) const {
     return FindTopDocuments(raw_query,[status]([[maybe_unused]] int document_id, DocumentStatus document_status, [[maybe_unused]] int rating){return ((document_status == status));});
 }
 
-// Количество документов  в базе
 int SearchServer::GetDocumentCount() const {
     return documents_.size();
 }
 
-// метод позволяющий получить идентификатор документа по его порядковому номеру
 int SearchServer::GetDocumentId(int index) const {
     return document_ids_.at(index);
 }
 
-// метод поиска совпадений запроса и документа из базы (с учетом плюс/минус слов)
 std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(
         const std::string& raw_query,
         int document_id) const {
@@ -131,11 +122,7 @@ int SearchServer::ComputeAverageRating(const std::vector<int>& ratings) {
         return 0;
     }
 
-    int rating_sum = 0;
-
-    for (const int rating : ratings) {
-        rating_sum += rating;
-    }
+    int rating_sum = std::accumulate(ratings.begin(), ratings.end(), 0);
     return rating_sum / static_cast<int>(ratings.size());
 }
 
@@ -172,7 +159,6 @@ SearchServer::Query SearchServer::ParseQuery(const std::string& text) const {
     return query;
 }
 
-// Метод считает долю документов в которых встречается слово из запроса
 double SearchServer::ComputeWordInverseDocumentFreq(const std::string& word) const {
     return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
 }

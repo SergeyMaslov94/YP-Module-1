@@ -1,6 +1,12 @@
 #include "request_queue.h"
 //===================================================================================================
 // public
+RequestQueue::RequestQueue(const SearchServer& search_server):
+        search_server_(search_server),
+        min_pass_(0),
+        count_no_result_(0)
+{}
+
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query, DocumentStatus status) {
     return AddRequest(search_server_.FindTopDocuments(raw_query, status));
 }
@@ -14,7 +20,6 @@ int RequestQueue::GetNoResultRequests() const {
 }
 //===================================================================================================
 // private
-// метод добавляет результаты поиска в очередь хранения
 std::vector<Document> RequestQueue::AddRequest(std::vector<Document> search_results) {
     QueryResult query_results;
     query_results.search_results = search_results;

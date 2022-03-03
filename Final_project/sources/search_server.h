@@ -8,7 +8,9 @@
 #include <map>
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
 #include "document.h"
+#include "string_processing.h"
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 const double MEASURE = 1e-6;
@@ -17,9 +19,7 @@ class SearchServer {
 public:
     // Конструкторы класса
     explicit SearchServer();
-
     explicit SearchServer(const std::string& text);
-
     template <typename  StringCollection>
     explicit SearchServer(const StringCollection& collection) {
         for (const std::string& text : collection) {
@@ -45,6 +45,7 @@ public:
     // Вариант FindTopDocuments, в котором задается функция-предикат key_filter по условиям которой будут фильтроваться документы
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const {
+
         // Минус и плюс слова
         const Query query = ParseQuery(raw_query);
         //  ID - РЕЛЕВАНТНОСТЬ - РЕЙТИНГ
@@ -79,34 +80,28 @@ private:
         DocumentStatus status;
     };
 
-    std::set<std::string> stop_words_;
-    std::vector<int> document_ids_;
-    std::map<std::string, std::map<int, double>> word_to_document_freqs_;
-    std::map<int, DocumentData> documents_;
-
-    static bool IsValidWord(const std::string& word);
-
-    bool IsStopWord(const std::string& word) const;
-
-    std::vector<std::string> SplitIntoWordsNoStop(const std::string& text) const;
-
-    static int ComputeAverageRating(const std::vector<int>& ratings);
-
     struct QueryWord {
         std::string data;
         bool is_minus;
         bool is_stop;
     };
 
-    QueryWord ParseQueryWord(std::string text) const;
-
     struct Query {
         std::set<std::string> plus_words;
         std::set<std::string> minus_words;
     };
 
-    Query ParseQuery(const std::string& text) const;
+    std::set<std::string> stop_words_;
+    std::vector<int> document_ids_;
+    std::map<std::string, std::map<int, double>> word_to_document_freqs_;
+    std::map<int, DocumentData> documents_;
 
+    static bool IsValidWord(const std::string& word);
+    bool IsStopWord(const std::string& word) const;
+    std::vector<std::string> SplitIntoWordsNoStop(const std::string& text) const;
+    static int ComputeAverageRating(const std::vector<int>& ratings);
+    QueryWord ParseQueryWord(std::string text) const;
+    Query ParseQuery(const std::string& text) const;
     // Считает долю документов в которых встречается слово из запроса
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
 

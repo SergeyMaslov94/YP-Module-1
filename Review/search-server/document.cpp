@@ -3,6 +3,18 @@
 
 using namespace std;
 
+Document::Document() :
+        id(0),
+        relevance(0.0),
+        rating(0)
+{}
+
+Document::Document(int id_m, double relevance_m, int rating_m) {
+    id = id_m;
+    relevance = relevance_m;
+    rating = rating_m;
+}
+
 void PrintDocument(const Document& document) {
     cout << "{ "s
          << "document_id = "s << document.id << ", "s

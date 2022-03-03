@@ -12,11 +12,7 @@
 
 class RequestQueue {
 public:
-    explicit RequestQueue(const SearchServer& search_server):
-            search_server_(search_server),
-            min_pass_(0),
-            count_no_result_(0)
-    {}
+    explicit RequestQueue(const SearchServer& search_server);
 
     // сделаем "обёртки" для всех методов поиска, чтобы сохранять результаты для нашей статистики
     template <typename DocumentPredicate>

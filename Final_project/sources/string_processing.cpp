@@ -1,6 +1,4 @@
 #include "string_processing.h"
-#include <vector>
-#include <string>
 #include <iostream>
 
 std::string ReadLine() {
@@ -16,7 +14,6 @@ int ReadLineWithNumber() {
     return result;
 }
 
-// Проверка корректного ввода минус слов
 bool NegativeWordErr(const std::string& word) {
     // если после символа 'минус' отсутствует текст
     if(word.size() == 1) {
