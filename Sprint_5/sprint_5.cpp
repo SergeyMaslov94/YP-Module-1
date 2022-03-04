@@ -11,11 +11,18 @@
 //#include "Topic_2/theory_1.hpp"
 //#include "Topic_2/lesson_3.hpp"
 
-#include "Topic_3/theory_1.hpp"
-
+//#include "Topic_3/theory_1.hpp"
+//#include "Topic_3/lesson_5.hpp"
+//#include "Topic_3/lesson_6.hpp"
+//#include "Topic_3/lesson_7.hpp"
+//#include "Topic_3/lesson_7_1.hpp"
+//#include "Topic_3/lesson_8.hpp"
+//#include "Topic_3/lesson_9.hpp"
+#include "Topic_3/lesson_10.hpp"
 
 int main()
 {
+    // ТУТ ЕСТЬ ГЕНЕРАТОРЫ СЛУЧАЙНЫХ ЧИСЕЛ
     //===============================================
     /* TOPIC_1: Профлируем и ускоряем */
     //theory_1();
@@ -49,8 +56,14 @@ int main()
 
     //===============================================
     /* TOPIC_3: ТЕОРИЯ БЫСТРОДЕЙСТВИЯ */
-    theory_1();
-    return 0;
+    //theory_1();
+    //lesson_5(); 
+    //lesson_6(); // Логарифмическая сложность
+    //lesson_7(); // Опасности экспоненты
+    //lesson_7_1();
+    //lesson_8(); // Аммортизированная сложность - НИЧЕ НЕ ПОНЯЛ НО ОЧЕНЬ ИНТЕРЕСНО
+    //lesson_9(); // Урок в котором find_if лучше upper_bound
+    lesson_10();
 }
 
 /*

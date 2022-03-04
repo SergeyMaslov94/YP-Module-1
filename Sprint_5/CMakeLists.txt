@@ -12,5 +12,5 @@ set(TOPIC_1 "${CMAKE_CURRENT_SOURCE_DIR}/Topic_1")
 
 #	`include_directories("${TOPIC_1}")
 #----------------------------------------------------
-add_executable( sprint_5 sprint_5.cpp)
+add_executable( sprint_5 sprint_5.cpp  "Topic_3/lesson_8.hpp" "Topic_3/lesson_9.hpp" "Topic_3/lesson_10.hpp")
 
