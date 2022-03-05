@@ -9,7 +9,7 @@ int theory_1() {
         LOG_DURATION("#1");
         ofstream out_file("ballad.txt"s);
         for (int i = 0; i < 50000; ++i) {
-            out_file << "Ñ ëþáèìûìè íå ðàññòàâàéòåñü"s << endl;
+            out_file << "Ð¡ Ð»ÑŽÐ±Ð¸Ð¼Ñ‹Ð¼Ð¸ Ð½Ðµ Ñ€Ð°ÑÑÑ‚Ð°Ð²Ð°Ð¹Ñ‚ÐµÑÑŒ"s << endl;
         }
     }
 
@@ -17,7 +17,7 @@ int theory_1() {
         LOG_DURATION("#2");
         ofstream out_file("ballad.txt"s);
         for (int i = 0; i < 50000; ++i) {
-            out_file << "Ñ ëþáèìûìè íå ðàññòàâàéòåñü/n"s << std::flush;
+            out_file << "Ð¡ Ð»ÑŽÐ±Ð¸Ð¼Ñ‹Ð¼Ð¸ Ð½Ðµ Ñ€Ð°ÑÑÑ‚Ð°Ð²Ð°Ð¹Ñ‚ÐµÑÑŒ/n"s << std::flush;
         }
     }
 
@@ -25,7 +25,7 @@ int theory_1() {
         LOG_DURATION("#3");
         ofstream out_file("ballad.txt"s);
         for (int i = 0; i < 50000; ++i) {
-            out_file << "Ñ ëþáèìûìè íå ðàññòàâàéòåñü/n"s;
+            out_file << "Ð¡ Ð»ÑŽÐ±Ð¸Ð¼Ñ‹Ð¼Ð¸ Ð½Ðµ Ñ€Ð°ÑÑÑ‚Ð°Ð²Ð°Ð¹Ñ‚ÐµÑÑŒ/n"s;
         }
     }
 
