@@ -21,8 +21,8 @@ vector<int> ReverseVector(const vector<int>& source_vector) {
 vector<int> ReverseVector2(const vector<int>& source_vector) {
     vector<int> res;
 
-    // будем проходить source_vector задом наперёд
-    // с помощью обратного итератора
+    // Р±СѓРґРµРј РїСЂРѕС…РѕРґРёС‚СЊ source_vector Р·Р°РґРѕРј РЅР°РїРµСЂС‘Рґ
+    // СЃ РїРѕРјРѕС‰СЊСЋ РѕР±СЂР°С‚РЅРѕРіРѕ РёС‚РµСЂР°С‚РѕСЂР°
     for (auto iterator = source_vector.rbegin(); iterator != source_vector.rend(); ++iterator) {
         res.push_back(*iterator);
     }
@@ -37,7 +37,7 @@ vector<int> ReverseVector3(const vector<int>& source_vector) {
 vector<int> ReverseVector4(const vector<int>& source_vector) {
     vector<int> res(source_vector.size());
 
-    // реализация вашего собственного реверсирования
+    // СЂРµР°Р»РёР·Р°С†РёСЏ РІР°С€РµРіРѕ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ СЂРµРІРµСЂСЃРёСЂРѕРІР°РЅРёСЏ
     std::copy(source_vector.begin(), source_vector.end(), res.begin());
     std::reverse(res.begin(), res.end());
     return res;
@@ -55,7 +55,7 @@ void Operate() {
     }
     if (n <= 100000) 
     {
-        // код измерения тут
+        // РєРѕРґ РёР·РјРµСЂРµРЅРёСЏ С‚СѓС‚
         {
             LOG_DURATION("Naive");
             ReverseVector(rand_vector);

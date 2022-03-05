@@ -17,7 +17,7 @@ vector<float> ComputeAvgTemp1(const vector<vector<float>>& measures) {
     auto n = measures[0].size();
     auto k = 0;
     float mean = 0;
-    // место для вашего решения
+    // РјРµСЃС‚Рѕ РґР»СЏ РІР°С€РµРіРѕ СЂРµС€РµРЅРёСЏ
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             auto val = measures[j][i];
@@ -49,7 +49,7 @@ vector<float> ComputeAvgTemp2(const vector<vector<float>>& measures) {
     
     auto k = 0;
     float mean = 0;
-    // место для вашего решения
+    // РјРµСЃС‚Рѕ РґР»СЏ РІР°С€РµРіРѕ СЂРµС€РµРЅРёСЏ
     for (auto i = 0, j = 0; i < days; i++) {
         for(const auto& val : measures[i]) {
             count[j] += (val > 0 ? 1 : 0);
