@@ -35,6 +35,7 @@ out/
 abstract/
 .idea/
 cmake-build-debug/
+Конспекты/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
