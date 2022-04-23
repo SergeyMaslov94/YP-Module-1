@@ -8,7 +8,9 @@
 //#include "Topic_1/lesson_8_2.hpp"
 //#include "Topic_1/theory_10.hpp"
 //#include "Topic_1/lesson_10.hpp"
-#include "Topic_1/lesson_10_2.hpp"
+//#include "Topic_1/lesson_10_2.hpp"
+
+#include "Topic_2/lesson_1.hpp"
 
 int main()
 {
@@ -24,5 +26,10 @@ int main()
     // TODO::
     //theory_10();
     //lesson_10();          // Присваивание объектов
-    lesson_10_2();
+    //lesson_10_2();
+
+    //====================================================
+    // ОДНОСВЯЗНЫЙ СПИСОК
+    lesson_1(); // создаем односвязный список
+
 }
