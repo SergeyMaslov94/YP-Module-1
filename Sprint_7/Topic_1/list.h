@@ -139,6 +139,22 @@ public:
         Assign(values.begin(), values.end());  // Может бросить исключение
     }
 
+    SingleLinkedList(const SingleLinkedList& other) {
+        // данные заполняются без лишнего копирования
+        if (other.size_ == 0) {
+            return;
+        }
+
+        SingleLinkedList tmp;
+        auto p = tmp.before_begin();
+        for (const auto& v : other) {
+            p.node_->next_node = new Node(v, nullptr);
+            tmp.size_++;
+            p++;
+        }
+        swap(tmp);
+    }
+
     ~SingleLinkedList() {
         Clear();
     }
@@ -276,6 +292,16 @@ public:
     void swap(SingleLinkedList& other) noexcept {
         std::swap(head_.next_node, other.head_.next_node);
         std::swap(size_, other.size_);
+    }
+
+    SingleLinkedList& operator=(const SingleLinkedList& rhs) {
+        if (rhs.head_.next_node == head_.next_node) {
+            return *this;
+        }
+
+        auto tmp(rhs);
+        this->swap(tmp);
+        return *this;
     }
 
 private:
