@@ -1,6 +1,8 @@
 ﻿//#include "Topic_1/lesson_1.hpp"
-#include "Topic_1/list.h"
+//#include "Topic_1/list.h"
 #include "Topic_2/lesson_1.hpp"
+#include "Topic_2/lesson_2_stack_vector/lesson_2.hpp"
+#include "Topic_2/lesson_3_string_view/lesson_3.hpp"
 
 #include <vector>
 #include <deque>
@@ -85,33 +87,8 @@ using namespace std;
 //============================================
 // ТЕМА 2. ЭФФЕКТИВНЫЕ ЛИНЕЙНЫЕ КОНТЕЙНЕРЫ
 int main() {
-    Editor editor;
-    const string text = "hello, world"s;
-    for (char c : text) {
-        editor.Insert(c);
-    }
-    // Текущее состояние редактора: `hello, world|`
-    for (size_t i = 0; i < text.size(); ++i) {
-        editor.Left();
-    }
-    // Текущее состояние редактора: `|hello, world`
-    editor.Cut(7);
-    // Текущее состояние редактора: `|world`
-    // в буфере обмена находится текст `hello, `
-    for (size_t i = 0; i < 5; ++i) {
-        editor.Right();
-    }
-    // Текущее состояние редактора: `world|`
-    editor.Insert(',');
-    editor.Insert(' ');
-    // Текущее состояние редактора: `world, |`
-    editor.Paste();
-    // Текущее состояние редактора: `world, hello, |`
-    editor.Left();
-    editor.Left();
-    //Текущее состояние редактора: `world, hello|, `
-    editor.Cut(3);  // Будут вырезаны 2 символа
-    // Текущее состояние редактора: `world, hello|`
-    cout << editor.GetText();
-    return 0;
+	//lesson_1(); // урок 6. Эффективный список
+	//lesson_2(); // урок 7. Проще, быстрее std::array
+	lesson_3(); // урок 8. Помощник в работе со строками
 }
+
