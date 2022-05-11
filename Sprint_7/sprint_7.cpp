@@ -1,8 +1,20 @@
-﻿//#include "Topic_1/lesson_1.hpp"
+﻿// ЧУТОК К ВЕРСИИ CPP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//#include "Topic_1/lesson_1.hpp"
 //#include "Topic_1/list.h"
-#include "Topic_2/lesson_1.hpp"
-#include "Topic_2/lesson_2_stack_vector/lesson_2.hpp"
-#include "Topic_2/lesson_3_string_view/lesson_3.hpp"
+// 
+//#include "Topic_2/lesson_1.hpp"
+//#include "Topic_2/lesson_2_stack_vector/lesson_2.hpp"
+//#include "Topic_2/lesson_3_string_view/lesson_3.hpp"
+//#include "Topic_2/lesson_4_vacab/lesson_4.hpp"
+//#include "Topic_2/lesson_5_simple_vector/lesson_5.hpp"
+
+//#include "Topic_3/lesson_1.hpp"
+//#include "Topic_3/lesson_2.hpp"
+//#include "Topic_3/lesson_3.hpp"
+//#include "Topic_3/lesson_4.hpp"
+//#include "Topic_3/lesson_5/lesson_5.hpp"
+
+#include "final/final_main.hpp"
 
 #include <vector>
 #include <deque>
@@ -86,9 +98,27 @@ using namespace std;
 
 //============================================
 // ТЕМА 2. ЭФФЕКТИВНЫЕ ЛИНЕЙНЫЕ КОНТЕЙНЕРЫ
-int main() {
+//int main() {
 	//lesson_1(); // урок 6. Эффективный список
 	//lesson_2(); // урок 7. Проще, быстрее std::array
-	lesson_3(); // урок 8. Помощник в работе со строками
-}
+	//lesson_3(); // урок 8. Помощник в работе со строками
+	//lesson_4(); // урок 9. Простейший словарь 
+	//lesson_5();   // урок 10. Разработка Simplevector
+//}
+//============================================
+// ТЕМА 3. CЕМАНТИКА ПЕРЕМЕЩЕНИЙ
+//int main() {
+//	//lesson_1(); // урок 1. Временные объекты
+//	//lesson_2(); // Copy elision и NRVO
+//	//lesson_3(); // Функция move и другие перемещения. СЧИТАЛКА ИОСИФА
+//	//lesson_4(); // Копировать нельзя, ПЕРЕМЕСТИТЬ! Эксперименты с классом, которому запрещенно копировать. ЗАДАЧА С ПЕРДЛОЖЕНИЯМИ
+//	lesson_5(); // СЧИТАЛКА ИОСИФА и ЗАДАЧА С ПРЕДЛОЖЕНИЯМИ на move итераторах
+//	/*А здорово получилось код сократить, с использованием make_move_iterator*/
+//}
 
+//============================================
+// ФИНАЛЬНЫЙ ПРОЕКТ СПРИНТА 7
+/* пишем simple_vector поддерживающий перемещение*/
+int main() {
+	final();
+}

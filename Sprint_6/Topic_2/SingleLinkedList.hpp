@@ -1,10 +1,11 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-template<typename Type>
+template <typename Type>
 class SingleLinkedList {
     // Узел списка
     struct Node {
