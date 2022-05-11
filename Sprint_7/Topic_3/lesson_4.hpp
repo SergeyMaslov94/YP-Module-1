@@ -6,11 +6,11 @@
 
 using namespace std;
 
-// Объявляем Sentence<Token> для произвольного типа Token
-// синонимом vector<Token>.
-// Благодаря этому в качестве возвращаемого значения
-// функции можно указать не малопонятный вектор векторов,
-// а вектор предложений — vector<Sentence<Token>>.
+// РћР±СЉСЏРІР»СЏРµРј Sentence<Token> РґР»СЏ РїСЂРѕРёР·РІРѕР»СЊРЅРѕРіРѕ С‚РёРїР° Token
+// СЃРёРЅРѕРЅРёРјРѕРј vector<Token>.
+// Р‘Р»Р°РіРѕРґР°СЂСЏ СЌС‚РѕРјСѓ РІ РєР°С‡РµСЃС‚РІРµ РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+// С„СѓРЅРєС†РёРё РјРѕР¶РЅРѕ СѓРєР°Р·Р°С‚СЊ РЅРµ РјР°Р»РѕРїРѕРЅСЏС‚РЅС‹Р№ РІРµРєС‚РѕСЂ РІРµРєС‚РѕСЂРѕРІ,
+// Р° РІРµРєС‚РѕСЂ РїСЂРµРґР»РѕР¶РµРЅРёР№ вЂ” vector<Sentence<Token>>.
 template <typename Token>
 using Sentence = vector<Token>;
 
@@ -24,7 +24,7 @@ TokenForwardIt FindSentenceEnd(TokenForwardIt tokens_begin, TokenForwardIt token
     return before_sentence_end == tokens_end ? tokens_end : next(before_sentence_end);
 }
 
-// Класс Token имеет метод bool IsEndSentencePunctuation() const
+// РљР»Р°СЃСЃ Token РёРјРµРµС‚ РјРµС‚РѕРґ bool IsEndSentencePunctuation() const
 //template <typename Token>
 //vector<Sentence<Token>> SplitIntoSentences(vector<Token> tokens) {
 //    auto start = tokens.begin();
@@ -73,10 +73,10 @@ ostream& operator<<(ostream& stream, const TestToken& token) {
     return stream << token.data;
 }
 // ==============================================================================
-// Это специальный тип, который поможет вам убедиться, что ваша реализация
-// функции MakeJosephusPermutation не выполняет копирование объектов.
-// Сейчас вы, возможно, не понимаете как он устроен, однако мы расскажем
-// об этом далее в нашем курсе
+// Р­С‚Рѕ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ С‚РёРї, РєРѕС‚РѕСЂС‹Р№ РїРѕРјРѕР¶РµС‚ РІР°Рј СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РІР°С€Р° СЂРµР°Р»РёР·Р°С†РёСЏ
+// С„СѓРЅРєС†РёРё MakeJosephusPermutation РЅРµ РІС‹РїРѕР»РЅСЏРµС‚ РєРѕРїРёСЂРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ.
+// РЎРµР№С‡Р°СЃ РІС‹, РІРѕР·РјРѕР¶РЅРѕ, РЅРµ РїРѕРЅРёРјР°РµС‚Рµ РєР°Рє РѕРЅ СѓСЃС‚СЂРѕРµРЅ, РѕРґРЅР°РєРѕ РјС‹ СЂР°СЃСЃРєР°Р¶РµРј
+// РѕР± СЌС‚РѕРј РґР°Р»РµРµ РІ РЅР°С€РµРј РєСѓСЂСЃРµ
 
 struct TestTokenNotCopy {
     string data;
@@ -101,9 +101,9 @@ ostream& operator<<(ostream& stream, const TestTokenNotCopy& token) {
     return stream << token.data;
 }
 //============================================================================
-// Тест содержит копирования объектов класса TestToken.
-// Для проверки отсутствия копирований в функции SplitIntoSentences
-// необходимо написать отдельный тест.
+// РўРµСЃС‚ СЃРѕРґРµСЂР¶РёС‚ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚РѕРІ РєР»Р°СЃСЃР° TestToken.
+// Р”Р»СЏ РїСЂРѕРІРµСЂРєРё РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РєРѕРїРёСЂРѕРІР°РЅРёР№ РІ С„СѓРЅРєС†РёРё SplitIntoSentences
+// РЅРµРѕР±С…РѕРґРёРјРѕ РЅР°РїРёСЃР°С‚СЊ РѕС‚РґРµР»СЊРЅС‹Р№ С‚РµСЃС‚.
 void TestSplitting() {
     {
         assert(SplitIntoSentences(vector<TestToken>({ {"Split"s}, {"into"s}, {"sentences"s}, {"!"s} }))
@@ -124,9 +124,9 @@ void TestSplitting() {
     std::cout << "TestSplitting - OK!" << std::endl;
 }
 
-// Тест содержит копирования объектов класса TestToken.
-// Для проверки отсутствия копирований в функции SplitIntoSentences
-// необходимо написать отдельный тест.
+// РўРµСЃС‚ СЃРѕРґРµСЂР¶РёС‚ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚РѕРІ РєР»Р°СЃСЃР° TestToken.
+// Р”Р»СЏ РїСЂРѕРІРµСЂРєРё РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РєРѕРїРёСЂРѕРІР°РЅРёР№ РІ С„СѓРЅРєС†РёРё SplitIntoSentences
+// РЅРµРѕР±С…РѕРґРёРјРѕ РЅР°РїРёСЃР°С‚СЊ РѕС‚РґРµР»СЊРЅС‹Р№ С‚РµСЃС‚.
 void TestSplittingNotCopy() {
     {
        vector<TestTokenNotCopy> tmp;

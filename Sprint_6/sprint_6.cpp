@@ -1,4 +1,4 @@
-﻿//#include "Topic_1/lesson_1.hpp"
+//#include "Topic_1/lesson_1.hpp"
 //#include "Topic_1/lesson_2.hpp"
 
 //#include "Topic_1/theory_6.hpp"

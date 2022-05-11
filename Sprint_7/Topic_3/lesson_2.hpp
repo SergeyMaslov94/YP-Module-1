@@ -18,12 +18,12 @@ public:
 
 class Box {
 public:
-    // достанем пару котов
+    // РґРѕСЃС‚Р°РЅРµРј РїР°СЂСѓ РєРѕС‚РѕРІ
     pair<SchrodingerCat, SchrodingerCat> GetCats() {
         SchrodingerCat cat1;
         SchrodingerCat cat2;
         is_empty_ = true;
-        // временная пара котов -> пара, которая возвращается из функции
+        // РІСЂРµРјРµРЅРЅР°СЏ РїР°СЂР° РєРѕС‚РѕРІ -> РїР°СЂР°, РєРѕС‚РѕСЂР°СЏ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РёР· С„СѓРЅРєС†РёРё
         return { cat1, cat2 };
     }
     bool HasCat() {
@@ -38,7 +38,7 @@ int lesson_2() {
     Box black_box;
     if (black_box.HasCat()) {
         pair<SchrodingerCat, SchrodingerCat> cat_pair;
-        // копируем пару котов в переменную cat_pair
+        // РєРѕРїРёСЂСѓРµРј РїР°СЂСѓ РєРѕС‚РѕРІ РІ РїРµСЂРµРјРµРЅРЅСѓСЋ cat_pair
         cat_pair = black_box.GetCats();
     }
     return 0;
