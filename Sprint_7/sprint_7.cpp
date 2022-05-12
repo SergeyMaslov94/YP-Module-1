@@ -14,6 +14,8 @@
 //#include "Topic_3/lesson_4.hpp"
 //#include "Topic_3/lesson_5/lesson_5.hpp"
 
+#include "tmp/tmp.hpp"
+
 #include "final/final_main.hpp"
 
 #include <vector>
@@ -117,8 +119,15 @@ using namespace std;
 //}
 
 //============================================
+// РАЗБИРАЮСЬ С УМНЫМ УКАЗАТЕЛЕМ 
+//int main() {
+//	tmp();
+//}
+
+//============================================
 // ФИНАЛЬНЫЙ ПРОЕКТ СПРИНТА 7
 /* пишем simple_vector поддерживающий перемещение*/
 int main() {
+	tmp();
 	final();
 }

@@ -3,6 +3,7 @@
 int final() {
 	Test1();
 	Test2();
+    
 	TestReserveConstructor();
 	TestReserveMethod();
 
@@ -10,6 +11,7 @@ int final() {
     TestTemporaryObjOperator();
     TestNamedMoveConstructor();
     TestNamedMoveOperator();
+    
     TestNoncopiableMoveConstructor();
     TestNoncopiablePushBack();
     TestNoncopiableInsert();

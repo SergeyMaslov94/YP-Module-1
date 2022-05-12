@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <iterator>
 #include <utility>
+#include "array_ptr.hpp"
 
 //====================================================================================
 // Структура - обертка для конструктора SimpleVector с резервированием
@@ -26,28 +27,9 @@ ReserveProxyObj Reserve(size_t capacity_to_reserve) {
 template <typename Type>
 class SimpleVector {
 private:
-    Type* p_ = nullptr;
+    ArrayPtr<Type> ptr_;
     size_t size_ = 0;
     size_t capacity_ = 0;
-
-    void Fill(Type* begin, Type* end, const Type& value) {
-        auto size = end - begin;
-        for (auto i = 0; i < size; i++) {
-            begin[i] = value;
-        }
-    }
-
-    void Fill(Type* begin, Type* end, Type&& value) {
-        auto size = end - begin;
-        for (auto i = 0; i < size; i++) {
-            if (i == 0) {
-                begin[i] = std::move(value);
-            }
-            else {
-                begin[i] = std::move(Type());
-            }
-        }
-    }
 
 public:
     using Iterator = Type*;
@@ -57,24 +39,24 @@ public:
 
     // Создаёт вектор из size элементов, инициализированных значением по умолчанию
     explicit SimpleVector(size_t size) {
-        p_ = new Type[size];
-        Fill(p_, p_ + size, Type());
+        ptr_.SetRawPtr(size); 
+        std::fill(ptr_.GetRawPtr(), ptr_.GetRawPtr() + size, Type());
         size_ = size;
         capacity_ = size;
     }
 
     // Создаёт вектор из size элементов, инициализированных значением value
     SimpleVector(size_t size, const Type& value) {
-        p_ = new Type[size];
-        Fill(p_, p_ + size, value);
+        ptr_.SetRawPtr(size);
+        std::fill(ptr_.GetRawPtr(), ptr_.GetRawPtr() + size, value);
         size_ = size;
         capacity_ = size;
     }
 
     // Создаёт вектор из std::initializer_list
     SimpleVector(std::initializer_list<Type> init) {
-        p_ = new Type[init.size()];
-        std::copy(init.begin(), init.end(), p_);
+        ptr_.SetRawPtr(init.size());
+        std::copy(init.begin(), init.end(), ptr_.GetRawPtr());
         size_ = init.size();
         capacity_ = init.size();
     }
@@ -82,35 +64,30 @@ public:
     // Конструктор с резервированием, использующий
     // дополнительный класс - обёртку
     SimpleVector(ReserveProxyObj init) {
-        p_ = new Type[init.capacity];
-        Fill(p_, p_ + init.capacity, Type());
+        ptr_.SetRawPtr(init.capacity);
+        std::fill(ptr_.GetRawPtr(), ptr_.GetRawPtr() + init.capacity, Type());
         capacity_ = init.capacity;
     }
 
+    // Конструктор копирования
     SimpleVector(const SimpleVector& other) {
         if (other.GetSize() == 0) {
             return;
         }
-        p_ = new Type[other.GetSize()];
+        ptr_.SetRawPtr(other.GetSize());
         size_t cnt = 0;
         for (const auto val : other) {
-            p_[cnt++] = val;
+            ptr_.GetRawPtr()[cnt++] = val;
         }
         size_ = other.GetSize();
         capacity_ = other.GetSize();
     }
 
+    // Конструктор перемещения
     SimpleVector(SimpleVector&& other)
-        : p_(std::move(other.p_)) {
+        : ptr_(std::move(other.ptr_.Release())) {
         size_ = std::exchange(other.size_, 0);
         capacity_ = std::exchange(other.capacity_, 0);
-        other.p_ = nullptr;
-    }
-
-    ~SimpleVector() {
-        if (p_ != nullptr) {
-            delete[] p_;
-        }
     }
 
     //====================================================================================
@@ -131,12 +108,14 @@ public:
 
     // Возвращает ссылку на элемент с индексом index
     Type& operator[](size_t index) noexcept {
-        return p_[index];
+        assert(index < GetSize());
+        return ptr_.GetRawPtr()[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
     const Type& operator[](size_t index) const noexcept {
-        return p_[index];
+        assert(index < GetSize());
+        return ptr_.GetRawPtr()[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
@@ -145,7 +124,7 @@ public:
         if (index >= size_) {
             throw std::out_of_range("");
         }
-        return *(p_ + index);
+        return *(ptr_.GetRawPtr() + index);
     }
 
     // Возвращает константную ссылку на элемент с индексом index
@@ -154,7 +133,7 @@ public:
         if (index >= size_) {
             throw std::out_of_range("");
         }
-        return *(p_ + index);
+        return *(ptr_.GetRawPtr() + index);
     }
 
     // Обнуляет размер массива, не изменяя его вместимость
@@ -171,17 +150,22 @@ public:
         }
 
         if (new_size <= capacity_) {
-            Fill(p_ + size_, p_ + new_size, Type());
+            for (auto it = ptr_.GetRawPtr() + size_; it < ptr_.GetRawPtr() + new_size; it++) {
+                *it = std::move(Type());
+            }
             size_ = new_size;
             return;
         }
 
         if (new_size > capacity_) {
-            Type* tmp = p_;
-            p_ = new Type[new_size];
-            std::move(tmp, tmp + size_, p_);
-            Fill(p_ + size_, p_ + new_size, Type());
-            delete[] tmp;
+            ArrayPtr<Type> tmp;
+            tmp.SetRawPtr(ptr_.Release());
+            ptr_.SetRawPtr(new_size); 
+            
+            std::move(tmp.GetRawPtr(), tmp.GetRawPtr() + size_, ptr_.GetRawPtr());
+            for (auto it = ptr_.GetRawPtr() + size_; it < ptr_.GetRawPtr() + new_size; it++) {
+                *it = std::move(Type());
+            }
 
             size_ = new_size;
             capacity_ = std::max(new_size, capacity_ * 2);
@@ -190,11 +174,14 @@ public:
     // Задает ёмкость вектора. 
     void Reserve(size_t new_capacity) {
         if (new_capacity > capacity_) {
-            Type* tmp = p_;
-            p_ = new Type[new_capacity];
-            std::copy(tmp, tmp + size_, p_);
-            Fill(p_ + size_, p_ + new_capacity, Type());
-            delete[] tmp;
+            ArrayPtr<Type> tmp;
+            tmp.SetRawPtr(ptr_.Release());
+            ptr_.SetRawPtr(new_capacity);
+
+            std::copy(tmp.GetRawPtr(), tmp.GetRawPtr() + size_, ptr_.GetRawPtr());
+            for (auto it = ptr_.GetRawPtr() + size_; it < ptr_.GetRawPtr() + new_capacity; it++) {
+                *it = std::move(Type());
+            }
 
             capacity_ = new_capacity;
         }
@@ -204,19 +191,13 @@ public:
     // Возвращает итератор на начало массива
     // Для пустого массива может быть равен (или не равен) nullptr
     Iterator begin() noexcept {
-        if (capacity_ == 0) {
-            return nullptr;
-        }
-        return p_;
+        return ptr_.GetRawPtr();
     }
 
     // Возвращает итератор на элемент, следующий за последним
     // Для пустого массива может быть равен (или не равен) nullptr
     Iterator end() noexcept {
-        if (capacity_ == 0) {
-            return nullptr;
-        }
-        return p_ + size_;
+        return ptr_.GetRawPtr() + size_;
     }
 
     // Возвращает константный итератор на начало массива
@@ -234,24 +215,18 @@ public:
     // Возвращает константный итератор на начало массива
     // Для пустого массива может быть равен (или не равен) nullptr
     ConstIterator cbegin() const noexcept {
-        if (capacity_ == 0) {
-            return nullptr;
-        }
-        return p_;
+        return ptr_.GetRawPtr();
     }
 
     // Возвращает итератор на элемент, следующий за последним
     // Для пустого массива может быть равен (или не равен) nullptr
     ConstIterator cend() const noexcept {
-        if (capacity_ == 0) {
-            return nullptr;
-        }
-        return p_ + size_;
+        return ptr_.GetRawPtr() + size_;
     }
 
     //=======================================================================
     SimpleVector& operator=(const SimpleVector& rhs) {
-        if (rhs.p_ == p_) {
+        if (rhs.ptr_.GetRawPtr() == ptr_.GetRawPtr()) {
             return *this;
         }
         auto tmp(rhs);
@@ -259,118 +234,128 @@ public:
         return *this;
     }
 
-    // Добавляет элемент в конец вектора
+    // Добавляет элемент в конец вектора (копирование)
     // При нехватке места увеличивает вдвое вместимость вектора
     void PushBack(const Type& item) {
         if (capacity_ == 0) {
-            p_ = new Type[1];
-            p_[0] = item;
+            ptr_.SetRawPtr(1);
+            ptr_.GetRawPtr()[0] = item;
             size_++;
             capacity_++;
             return;
         }
 
         if (size_ < capacity_) {
-            p_[size_] = item;
+            ptr_.GetRawPtr()[size_] = item;
             size_++;
             return;
         }
 
-        auto tmp = p_;
-        p_ = new Type[capacity_ * 2];
-        std::copy(tmp, tmp + size_, begin());
-        p_[size_] = item;
-        delete[] tmp;
+        ArrayPtr<Type> tmp;
+        tmp.SetRawPtr(ptr_.Release());
+        ptr_.SetRawPtr(capacity_ * 2);
+        std::copy(tmp.GetRawPtr(), tmp.GetRawPtr() + size_, begin());
+        ptr_.GetRawPtr()[size_] = item;
 
         size_++;
         capacity_ = capacity_ * 2;
     }
 
+    // Добавляет элемент в конец вектора (перемещение)
+    // При нехватке места увеличивает вдвое вместимость вектора
     void PushBack(Type&& item) {
         if (capacity_ == 0) {
-            p_ = new Type[1];
-            p_[0] = std::move(item);
+            ptr_.SetRawPtr(1);
+            ptr_.GetRawPtr()[0] = std::move(item);
             size_++;
             capacity_++;
             return;
         }
 
         if (size_ < capacity_) {
-            p_[size_] = std::move(item);
+            ptr_.GetRawPtr()[size_] = std::move(item);
             size_++;
             return;
         }
 
-        auto tmp = p_;
-        p_ = new Type[capacity_ * 2];
-        std::move(tmp, tmp + size_, begin());
-        p_[size_] = std::move(item);
-        delete[] tmp;
+        ArrayPtr<Type> tmp;
+        tmp.SetRawPtr(ptr_.Release());
+        ptr_.SetRawPtr(capacity_ * 2);
+        std::move(tmp.GetRawPtr(), tmp.GetRawPtr() + size_, begin());
+        ptr_.GetRawPtr()[size_] = std::move(item);
 
         size_++;
         capacity_ = capacity_ * 2;
     }
 
-    // Вставляет значение value в позицию pos.
+    // Вставляет значение value в позицию pos (копирование)
     // Возвращает итератор на вставленное значение
     // Если перед вставкой значения вектор был заполнен полностью,
     // вместимость вектора должна увеличиться вдвое, а для вектора вместимостью 0 стать равной 1
     Iterator Insert(ConstIterator pos, const Type& value) {
+        assert(pos >= begin() && pos <= end()); // добавлена проверка попадания pos на интервал [begin(), end()]
+
         if (capacity_ == 0) {
-            p_ = new Type[1];
-            p_[0] = value;
+            ptr_.SetRawPtr(1);
+            ptr_.GetRawPtr()[0] = value;
             size_++;
             capacity_++;
-            return p_;
+            return ptr_;
         }
 
         if (size_ < capacity_) {
             std::copy_backward(const_cast<Iterator>(pos), end(), end() + 1);
             size_t idx = pos - begin();
-            p_[idx] = value;
+            ptr_.GetRawPtr()[idx] = value;
 
             size_++;
-            return p_ + idx;
+            return ptr_.GetRawPtr() + idx;
         }
 
-        auto tmp = p_;
+        ArrayPtr<Type> tmp;
         size_t idx = pos - begin();
-        p_ = new Type[capacity_ * 2];
-        std::copy(tmp, tmp + idx, begin());
-        p_[idx] = value;
-        std::copy(tmp + idx, tmp + size_, begin() + idx + 1);
-        delete[] tmp;
+        tmp.SetRawPtr(ptr_.Release());
+        ptr_.SetRawPtr(capacity_ * 2);
+
+        std::copy(tmp.GetRawPtr(), tmp.GetRawPtr() + idx, begin());
+        ptr_.GetRawPtr()[idx] = value;
+        std::copy(tmp.GetRawPtr() + idx, tmp.GetRawPtr() + size_, begin() + idx + 1);
 
         size_++;
         capacity_ = capacity_ * 2;
         return begin() + idx;
     }
 
+    // Вставляет значение value в позицию pos (перемещение)
+    // Возвращает итератор на вставленное значение
     Iterator Insert(ConstIterator pos, Type&& value) {
+        assert(pos >= begin() && pos <= end()); // добавлена проверка попадания pos на интервал [begin(), end()]
+
         if (capacity_ == 0) {
-            p_ = new Type[1];
-            p_[0] = std::move(value);
+            ptr_.SetRawPtr(1);
+            ptr_.GetRawPtr()[0] = std::move(value);
             size_++;
             capacity_++;
-            return p_;
+            return ptr_.GetRawPtr();
         }
 
         if (size_ < capacity_) {
             std::move_backward(const_cast<Iterator>(pos), end(), end() + 1);
             size_t idx = pos - begin();
-            p_[idx] = std::move(value);
+            ptr_.GetRawPtr()[idx] = std::move(value);
 
             size_++;
-            return p_ + idx;
+            return ptr_.GetRawPtr() + idx;
         }
 
-        auto tmp = p_;
+        ArrayPtr<Type> tmp;
         size_t idx = pos - begin();
-        p_ = new Type[capacity_ * 2];
-        std::move(tmp, tmp + idx, begin());
-        p_[idx] = std::move(value);
-        std::move(tmp + idx, tmp + size_, begin() + idx + 1);
-        delete[] tmp;
+        tmp.SetRawPtr(ptr_.Release());
+        ptr_.SetRawPtr(capacity_ * 2);
+
+        std::move(tmp.GetRawPtr(), tmp.GetRawPtr() + idx, begin());
+        ptr_.GetRawPtr()[idx] = std::move(value);
+        std::move(tmp.GetRawPtr() + idx, tmp.GetRawPtr() + size_, begin() + idx + 1);
 
         size_++;
         capacity_ = capacity_ * 2;
@@ -379,18 +364,14 @@ public:
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
     void PopBack() noexcept {
-        if (size_ == 0) {
-            return;
-        }
+        assert(!IsEmpty()); // добавлена проверка на пустой вектор
         size_--;
     }
 
-
     // Удаляет элемент вектора в указанной позиции
     Iterator Erase(ConstIterator pos) {
-        if (size_ == 0) {
-            return begin();
-        }
+        assert(!IsEmpty()); // добавлена проверка на пустой вектор
+        assert(pos >= begin() && pos < end()); // добавлена проверка попадания pos на интервал [begin(), end())
 
         auto idx = pos - begin();
         std::move(const_cast<Iterator>(pos) + 1, end(), begin() + idx);
@@ -401,7 +382,10 @@ public:
 
     // Обменивает значение с другим вектором
     void swap(SimpleVector& other) noexcept {
-        std::swap(other.p_, p_);
+        ArrayPtr<Type> tmp(ptr_.Release());
+        ptr_.SetRawPtr(other.ptr_.Release());
+        other.ptr_.SetRawPtr(tmp.Release());
+
         std::swap(other.size_, size_);
         std::swap(other.capacity_, capacity_);
     }

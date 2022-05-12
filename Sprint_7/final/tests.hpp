@@ -292,6 +292,13 @@ inline void Test2() {
         assert((v == SimpleVector<int>{1, 2, 4}));
     }
 
+    // Доступ к элементу по оператору []
+    {
+        SimpleVector<int> v{ 1, 2, 3, 4, 5 };
+        v[3] = 0;
+        v[4] = 0;
+    }
+
     cout << "Done!"s << endl;
 }
 

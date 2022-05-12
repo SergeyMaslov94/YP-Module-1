@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD 17)
 set(TOPIC_1 "${CMAKE_CURRENT_SOURCE_DIR}/Topic_1")
 
 #----------------------------------------------------
-add_executable( sprint_7 sprint_7.cpp )
+add_executable( sprint_7 sprint_7.cpp  "tmp/scoped_ptr.hpp" "tmp/tmp.hpp" "final/array_ptr.hpp")
 
