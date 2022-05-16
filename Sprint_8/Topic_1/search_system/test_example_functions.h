@@ -1,0 +1,8 @@
+#pragma once
+#ifndef FINAL_PROJECT_TEST_EXAMPLE_FUNCTIONS_H
+#define FINAL_PROJECT_TEST_EXAMPLE_FUNCTIONS_H
+#pragma once
+
+void TestExampleFunctions();
+
+#endif //FINAL_PROJECT_TEST_EXAMPLE_FUNCTIONS_H
