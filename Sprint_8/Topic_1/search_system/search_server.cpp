@@ -169,6 +169,28 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string text) const {
     return {text, is_minus,IsStopWord(text)};
 }
 
+SearchServer::Query_parall SearchServer::ParseQueryWordParall(std::vector<std::string> texts) {
+    Query_parall query;
+    for (auto text : texts) {
+        
+        if (duplicate_words_in_parse_query_.count(text) != 0) {
+            continue;
+        }
+        duplicate_words_in_parse_query_.insert(text);
+
+        if (!IsStopWord(text)) {
+            if (text[0] == '-') {
+                query.minus_words.push_back(text.substr(1));
+            }
+            else {
+                query.plus_words.push_back(text);
+            }
+        }
+    }
+
+    return query;
+}
+
 SearchServer::Query SearchServer::ParseQuery(const std::string& text) const {
     Query query;
     for (const std::string& word : SplitIntoWords(text)) {

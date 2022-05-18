@@ -67,9 +67,13 @@ public:
 
     // поиск совпадений запроса и документа из базы (с учетом плюс/минус слов)
     std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id) const;
+    template<typename execution_type>
+    std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const execution_type type, const std::string& raw_query, int document_id);
 
     // удаление документов из поискового сервера
     void RemoveDocument(int document_id);
+    template<typename execution_type>
+    void RemoveDocument(execution_type type, int document_id);
 
 private:
     // Проверка корректного ввода минус слов
@@ -91,6 +95,12 @@ private:
         std::set<std::string> minus_words;
     };
 
+    struct Query_parall {
+        std::vector<std::string> plus_words;
+        std::vector<std::string> minus_words;
+    };
+
+    std::set<std::string> duplicate_words_in_parse_query_;
     std::set<std::string> stop_words_;
     std::set<int> document_ids_;
 
@@ -105,7 +115,11 @@ private:
     static int ComputeAverageRating(const std::vector<int>& ratings);
 
     QueryWord ParseQueryWord(std::string text) const;
+    Query_parall ParseQueryWordParall(std::vector<std::string> texts);
+
     Query ParseQuery(const std::string& text) const;
+    template<typename execution_type>
+    Query_parall ParseQuery(const execution_type type, const std::string& text);
 
     // Считает долю документов в которых встречается слово из запроса
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
@@ -171,4 +185,87 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
         matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
     }
     return matched_documents;
+}
+
+template<typename execution_type>
+void SearchServer::RemoveDocument(execution_type type, int document_id) {
+
+    if (documents_.count(document_id) == 0) {
+        return;
+    }
+
+    documents_.erase(document_id);
+    document_ids_.erase(document_id);
+
+    std::vector<const std::string*> words;
+    std::vector<int> number_erased_element;
+
+    for (const auto& word : GetWordFrequencies(document_id)) {
+        words.push_back(&word.first);
+    }
+
+    number_erased_element.resize(words.size());
+    std::transform(type, words.begin(), words.end(), number_erased_element.begin(),
+        [this, document_id](const std::string* word) {
+            return word_to_document_freqs_.at(*word).erase(document_id);
+        });
+
+    ids_and_words_with_freqs.erase(document_id);
+}
+
+template<typename execution_type>
+std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(const execution_type type, const std::string & raw_query, int document_id) {
+
+    const Query_parall query = ParseQuery(type, raw_query);
+    std::vector<std::string> matched_words;
+
+    for (const std::string& word : query.plus_words) {
+        if (word_to_document_freqs_.count(word) == 0) {
+            continue;
+        }
+
+        if (word_to_document_freqs_.at(word).count(document_id)) {
+            matched_words.push_back(word);
+        }
+    }
+
+    for (const std::string& word : query.minus_words) {
+        if (word_to_document_freqs_.count(word) == 0) {
+            continue;
+        }
+
+        if (word_to_document_freqs_.at(word).count(document_id)) {
+            matched_words.clear();
+            break;
+        }
+    }
+    return { matched_words, documents_.at(document_id).status };
+}
+
+template<typename execution_type>
+SearchServer::Query_parall SearchServer::ParseQuery(const execution_type type, const std::string& text) {
+
+    //Query_parall query;
+    //for (const std::string& word : SplitIntoWords(text)) {
+        //// некорректный ввод минус слов
+        //if (!NegativeWordErr(word)) {
+        //    throw std::invalid_argument("некорректный ввод минус слов!");
+        //}
+        //// Проверка на наличие спец символов в запросе
+        //if (!IsValidWord(word)) {
+        //    throw std::invalid_argument("документ содержит недопустимые символы!");
+        //}
+        //auto query_word = ParseQueryWordParall(SplitIntoWords(text));
+
+        //if (!query_word.is_stop) {
+        //    if (query_word.is_minus) {
+        //        query.minus_words.insert(query_word.data);
+        //    }
+        //    else {
+        //        query.plus_words.insert(query_word.data);
+        //    }
+        //}
+    //}
+
+    return ParseQueryWordParall(SplitIntoWords(text));
 }

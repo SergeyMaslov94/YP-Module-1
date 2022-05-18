@@ -1,11 +1,13 @@
 // ТУТ ЕСТЬ ГЕНЕРАТОРЫ И БЕНЧМАРКИ!!!!
 
 //#include "Topic_1/lesson_1.hpp"
-#include "Topic_1/lesson_2.hpp"
-#include "Topic_1/lesson_3.hpp"
-#include "Topic_1/lesson_4.hpp"
-#include "Topic_1/lesson_5.hpp"
-#include "Topic_1/lesson_6.hpp"
+//#include "Topic_1/lesson_2.hpp"
+//#include "Topic_1/lesson_3.hpp"
+//#include "Topic_1/lesson_4.hpp"
+//#include "Topic_1/lesson_5.hpp"
+//#include "Topic_1/lesson_6.hpp"
+//#include "Topic_1/lesson_7.hpp"
+#include "Topic_1/lesson_8.hpp"
 //============================================
 int main() {
 	//lesson_1();  // применим макросы, чтобы измерить время последовательного и параллельного алгоритмов сортировки документов
@@ -42,8 +44,12 @@ int main() {
 	//lesson_4(); 
 
 	// ПАРАЛЛЕЛИМ ЗАПРОСЫ К ПОИСКОВОЙ СИСТЕМЕ
-	//lesson_5(); 
-	lesson_6();
+	//lesson_5(); //process_queries
+	//lesson_6(); //process_queries
+
+	// ПАРАЛЛЕЛИМ МЕТОДЫ ПОИСКОВОЙ СИСТЕМЫ
+	//lesson_7(); // SearchServer.RemoveDocument()
+	lesson_8(); // SearchServer.MatchDocument()
 
 	return 0;
 }
