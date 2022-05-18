@@ -3,13 +3,13 @@
 
 void RemoveDuplicates(SearchServer& search_server) {
 
-    std::set<std::set<std::string>> documents;
+    std::set<std::set<std::string_view>> documents;
     std::vector<int> ids_duplicate;
     int previous_size = 0;
 
     for (const auto& document_id : search_server) {
         // не учитываем частоты
-        std::set<std::string> words;
+        std::set<std::string_view> words;
         for(auto word_and_freqs : search_server.GetWordFrequencies(document_id)) {
             words.insert(words.begin(), word_and_freqs.first);
         }

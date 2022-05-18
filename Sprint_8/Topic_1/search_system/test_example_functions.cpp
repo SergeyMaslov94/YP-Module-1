@@ -13,7 +13,7 @@ using namespace std;
 void TestGetWordFrequencies() {
     // документ существует
     {
-        const map<std::string, double> reference{{"funny", 0.25}, {"pet", 0.25}, {"nasty", 0.25}, {"rat", 0.25} };
+        const map<std::string_view, double> reference{{"funny", 0.25}, {"pet", 0.25}, {"nasty", 0.25}, {"rat", 0.25} };
 
         SearchServer search_server("and with"s);
         search_server.AddDocument(1, "funny pet and nasty rat"s, DocumentStatus::ACTUAL, {7,1,7});

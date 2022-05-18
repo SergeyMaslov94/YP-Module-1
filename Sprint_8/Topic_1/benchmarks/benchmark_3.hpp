@@ -67,20 +67,7 @@ void Test(string_view mark, SearchServer search_server, const string& query, Exe
     cout << word_count << endl;
 }
 
-template <typename ExecutionPolicy>
-void TestSeq(string_view mark, SearchServer search_server, const string& query, ExecutionPolicy&& policy) {
-    LOG_DURATION(mark);
-    const int document_count = search_server.GetDocumentCount();
-    int word_count = 0;
-    for (int id = 0; id < document_count; ++id) {
-        const auto [words, status] = search_server.MatchDocument(query, id);
-        word_count += words.size();
-    }
-    cout << word_count << endl;
-}
-
 #define TEST(policy) Test(#policy, search_server, query, execution::policy)
-#define TEST_SEQ(policy) TestSeq(#policy, search_server, query, execution::policy)
 
 int benchmark_3() {
     mt19937 generator;
@@ -97,7 +84,6 @@ int benchmark_3() {
 
     //TEST(seq);
     TEST(par);
-    TEST_SEQ(seq);
-
+   
     return 0;
 }

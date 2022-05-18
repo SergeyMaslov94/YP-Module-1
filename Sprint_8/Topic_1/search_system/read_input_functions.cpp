@@ -1,5 +1,6 @@
 #include "read_input_functions.h"
 #include <iostream>
+#include <execution>
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void MatchDocuments(const SearchServer& search_server, const string& query) {
 
         for(auto document_id : search_server) {
             const auto [words, status] = search_server.MatchDocument(query, document_id);
-            PrintMatchDocumentResult(document_id, words, status);
+            //PrintMatchDocumentResult(document_id, words, status);
         }
     } catch (const exception& e) {
         cout << "Ошибка матчинга документов на запрос "s << query << ": "s << e.what() << endl;

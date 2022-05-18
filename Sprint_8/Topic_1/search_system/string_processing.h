@@ -8,6 +8,7 @@
 
 // Разделяем строку на отдельные слова
 std::vector<std::string> SplitIntoWords(const std::string& text);
+std::vector<std::string_view> SplitIntoWordsView(std::string_view str);
 
 // Определяем не пустые строки
 template <typename StringContainer>
