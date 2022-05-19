@@ -95,7 +95,18 @@ void SearchServer::RemoveDocument(int document_id) {
 std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(const std::string_view & raw_query, int document_id) const {
     const Query query = ParseQuery(raw_query);
     std::vector<std::string_view> matched_words;
+    // Проверяю, содержится ли минус слова в документе с текущим id
+    for (const std::string_view& word : query.minus_words) {
+        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+            continue;
+        }
 
+        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
+            return { {}, documents_.at(document_id).status };
+        }
+    }
+
+    // Продолжаю обработку плюс слов в случае успеха
     for (const std::string_view& word : query.plus_words) {
         if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
             continue;
@@ -106,16 +117,6 @@ std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDoc
         }
     }
 
-    for (const std::string_view& word : query.minus_words) {
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
-            continue;
-        }
-
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
-            matched_words.clear();
-            break;
-        }
-    }
     return { matched_words, documents_.at(document_id).status };
 }
 
