@@ -47,7 +47,7 @@ int test_algorithm() {
 }
 
 int lesson_8() {
-    test_algorithm();
+    //test_algorithm();
     benchmark_3();
 
 	return 0;

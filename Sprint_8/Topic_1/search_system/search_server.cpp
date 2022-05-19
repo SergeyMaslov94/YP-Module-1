@@ -292,14 +292,14 @@ SearchServer::Query_vector SearchServer::ParseQueryWordSeq(std::vector<std::stri
     query.minus_words.resize(texts.size());
     query.plus_words.resize(texts.size());
 
-    std::transform(texts.begin(), texts.end(), query.plus_words.begin(), [this](std::string_view& text) {
+    std::transform(std::execution::seq, texts.begin(), texts.end(), query.plus_words.begin(), [this](std::string_view& text) {
         if (!IsStopWord(text) && text[0] != '-') {
             return text;
         }
         return std::string_view();
         });
 
-    std::transform(texts.begin(), texts.end(), query.minus_words.begin(), [this](std::string_view& text) {
+    std::transform(std::execution::seq, texts.begin(), texts.end(), query.minus_words.begin(), [this](std::string_view& text) {
         if (!IsStopWord(text) && text[0] == '-') {
             return text.substr(1);
         }
@@ -354,7 +354,7 @@ SearchServer::Query_vector SearchServer::ParseQuerySeq(const std::string_view & 
 }
 
 SearchServer::Query_vector SearchServer::ParseQueryParall(const std::string_view & text) const {
-    return ParseQueryWordParall(SplitIntoWordsView(text));
+    return std::move(ParseQueryWordParall(std::move(SplitIntoWordsView(text))));
 }
 
 double SearchServer::ComputeWordInverseDocumentFreq(const std::string & word) const {
