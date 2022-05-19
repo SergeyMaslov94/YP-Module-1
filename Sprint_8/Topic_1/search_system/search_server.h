@@ -38,7 +38,6 @@ public:
         }
     }
 
-
     // Метод добавления новых документов
     void AddDocument(int document_id, const std::string_view& document, DocumentStatus status, const std::vector<int>& ratings);
 
@@ -68,7 +67,7 @@ public:
     // поиск совпадений запроса и документа из базы (с учетом плюс/минус слов)
     std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(const std::string_view& raw_query, int document_id) const;
     std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(std::execution::sequenced_policy seq, const std::string_view& raw_query, int document_id) const;
-    std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(std::execution::parallel_policy type, const std::string_view& raw_query, int document_id);
+    std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(std::execution::parallel_policy type, const std::string_view& raw_query, int document_id) const;
 
     // удаление документов из поискового сервера
     void RemoveDocument(int document_id);
@@ -95,7 +94,7 @@ private:
         std::set<std::string_view> minus_words;
     };
 
-    struct Query_parall {
+    struct Query_vector {
         std::vector<std::string_view> plus_words;
         std::vector<std::string_view> minus_words;
     };
@@ -113,11 +112,13 @@ private:
     std::vector<std::string_view> SplitIntoWordsNoStop(const std::string_view& text) const;
     static int ComputeAverageRating(const std::vector<int>& ratings);
 
-    QueryWord ParseQueryWord(std::string_view text) const;
-    Query_parall ParseQueryWordParall(std::vector<std::string_view> texts);
+    QueryWord ParseQueryWord(std::string_view texts) const;
+    Query_vector ParseQueryWordSeq(std::vector<std::string_view> texts) const;
+    Query_vector ParseQueryWordParall(std::vector<std::string_view> texts) const;
 
     Query ParseQuery(const std::string_view& text) const;
-    Query_parall ParseQueryParall(const std::string_view& text);
+    Query_vector ParseQuerySeq(const std::string_view& text) const;
+    Query_vector ParseQueryParall(const std::string_view& text) const;
 
     // Считает долю документов в которых встречается слово из запроса
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
@@ -164,7 +165,7 @@ std::vector<Document> SearchServer::FindAllDocuments(const Query& query, Documen
 }
 
 template <typename DocumentPredicate>
-std::vector<Document> SearchServer::FindTopDocuments(const std::string_view& raw_query, DocumentPredicate document_predicate) const {
+std::vector<Document> SearchServer::FindTopDocuments(const std::string_view& raw_query, DocumentPredicate document_predicate) const{
 
     // Минус и плюс слова
     const SearchServer::Query query = ParseQuery(raw_query);

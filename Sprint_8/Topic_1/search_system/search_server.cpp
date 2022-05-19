@@ -57,11 +57,11 @@ void SearchServer::AddDocument(
     document_ids_.insert(document_ids_.begin(), document_id);
 }
 
-std::vector<Document> SearchServer::FindTopDocuments(const std::string_view & raw_query) const {
+std::vector<Document> SearchServer::FindTopDocuments(const std::string_view & raw_query) const{
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
-std::vector<Document> SearchServer::FindTopDocuments(const std::string_view & raw_query, DocumentStatus status) const {
+std::vector<Document> SearchServer::FindTopDocuments(const std::string_view & raw_query, DocumentStatus status) const{
     return FindTopDocuments(raw_query, [status]([[maybe_unused]] int document_id, DocumentStatus document_status, [[maybe_unused]] int rating) {return ((document_status == status)); });
 }
 
@@ -93,21 +93,19 @@ void SearchServer::RemoveDocument(int document_id) {
 }
 
 std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(const std::string_view & raw_query, int document_id) const {
-    const Query query = ParseQuery(raw_query);
-    std::vector<std::string_view> matched_words;
-
-    // Продолжаю обработку плюс слов в случае успеха
-    for (const std::string_view& word : query.plus_words) {
+   const Query_vector query = ParseQuerySeq(raw_query);
+   std::vector<std::string_view> matched_words(query.plus_words.size());
+  
+    std::transform(query.plus_words.begin(), query.plus_words.end(), matched_words.begin(), [this, document_id](std::string_view word) {
         if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
-            continue;
+            return std::string_view();
         }
-
         if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
-            matched_words.push_back(word);
+            return word;
         }
-    }
+        return std::string_view();
+    });
 
-    // Проверяю, содержится ли минус слова в документе с текущим id
     for (const std::string_view& word : query.minus_words) {
         if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
             continue;
@@ -118,13 +116,20 @@ std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDoc
         }
     }
 
+    {
+        std::sort(matched_words.begin(), matched_words.end());
+        auto last = std::unique(matched_words.begin(), matched_words.end());
+        matched_words.erase(last, matched_words.end());
+        matched_words.erase(matched_words.begin());
+    }
+
     return { matched_words, documents_.at(document_id).status };
 }
 
 std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(
     std::execution::sequenced_policy seq,
     const std::string_view & raw_query,
-    int document_id) const {
+    int document_id) const{
 
     return MatchDocument(raw_query, document_id);
 }
@@ -132,9 +137,9 @@ std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDoc
 std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(
     std::execution::parallel_policy par,
     const std::string_view & raw_query,
-    int document_id) {
+    int document_id) const{
 
-    const Query_parall query = ParseQueryParall(raw_query);
+    const Query_vector query = ParseQueryParall(raw_query);
 
     // Проверяю, содержится ли минус слова в документе с текущим id
     for (const std::string_view& word : query.minus_words) {
@@ -226,8 +231,31 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view text) cons
     return { text, is_minus, IsStopWord(text) };
 }
 
-SearchServer::Query_parall SearchServer::ParseQueryWordParall(std::vector<std::string_view> texts) {
-    Query_parall query;
+SearchServer::Query_vector SearchServer::ParseQueryWordSeq(std::vector<std::string_view> texts) const {
+    Query_vector query;
+
+    query.minus_words.resize(texts.size());
+    query.plus_words.resize(texts.size());
+
+    std::transform(texts.begin(), texts.end(), query.plus_words.begin(), [this](std::string_view& text) {
+        if (!IsStopWord(text) && text[0] != '-') {
+            return text;
+        }
+        return std::string_view();
+        });
+
+    std::transform(texts.begin(), texts.end(), query.minus_words.begin(), [this](std::string_view& text) {
+        if (!IsStopWord(text) && text[0] == '-') {
+            return text.substr(1);
+        }
+        return std::string_view();
+        });
+
+    return query;
+}
+
+SearchServer::Query_vector SearchServer::ParseQueryWordParall(std::vector<std::string_view> texts) const{
+    Query_vector query;
 
     query.minus_words.resize(texts.size());
     query.plus_words.resize(texts.size());
@@ -249,7 +277,7 @@ SearchServer::Query_parall SearchServer::ParseQueryWordParall(std::vector<std::s
     return query;
 }
 
-SearchServer::Query SearchServer::ParseQuery(const std::string_view & text) const {
+SearchServer::Query SearchServer::ParseQuery(const std::string_view& text) const {
     Query query;
     for (const std::string_view& word : SplitIntoWordsView(text)) {
         // некорректный ввод минус слов
@@ -274,7 +302,11 @@ SearchServer::Query SearchServer::ParseQuery(const std::string_view & text) cons
     return query;
 }
 
-SearchServer::Query_parall SearchServer::ParseQueryParall(const std::string_view & text) {
+SearchServer::Query_vector SearchServer::ParseQuerySeq(const std::string_view& text) const{
+    return ParseQueryWordSeq(SplitIntoWordsView(text));;
+}
+
+SearchServer::Query_vector SearchServer::ParseQueryParall(const std::string_view& text) const{
     return ParseQueryWordParall(SplitIntoWordsView(text));
 }
 
