@@ -167,7 +167,7 @@ std::vector<Document> SearchServer::FindAllDocuments(const Query& query, Documen
 }
 
 template <typename DocumentPredicate>
-std::vector<Document> SearchServer::FindTopDocuments(const std::string_view& raw_query, DocumentPredicate document_predicate) const{
+std::vector<Document> SearchServer::FindTopDocuments(const std::string_view& raw_query, DocumentPredicate document_predicate) const {
 
     // Минус и плюс слова
     const SearchServer::Query query = ParseQuery(raw_query);
