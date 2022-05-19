@@ -103,10 +103,12 @@ private:
     std::set<int> document_ids_;
 
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
+
     std::map<int, DocumentData> documents_;
     std::map<int, std::map<std::string_view, double>> ids_and_words_with_freqs;
 
     static bool IsValidWord(const std::string_view& word);
+    static bool IsEmptyWord(const std::string_view& word);
     bool IsStopWord(const std::string_view& word) const;
 
     std::vector<std::string_view> SplitIntoWordsNoStop(const std::string_view& text) const;
