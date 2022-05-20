@@ -12,14 +12,15 @@ int test_algorithm() {
     SearchServer search_server("and with"s);
 
     int id = 0;
-    const std::vector<std::string> texts{
-        "funny pet and nasty rat"s,
+    for (
+        const string& text : {
+            "funny pet and nasty rat"s,
             "funny pet with curly hair"s,
             "funny pet and not very nasty rat"s,
             "pet with rat and rat and rat"s,
             "nasty rat with curly hair"s,
-    };
-    for (const auto& text : texts) {
+        }
+        ) {
         search_server.AddDocument(++id, text, DocumentStatus::ACTUAL, { 1, 2 });
     }
 

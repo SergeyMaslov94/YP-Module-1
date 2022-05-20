@@ -6,6 +6,7 @@
 #include <string_view>
 #include <vector>
 #include <set>
+#include <deque>
 #include <map>
 #include <cmath>
 #include <algorithm>
@@ -29,7 +30,8 @@ public:
         for (const std::string& text : collection) {
             for (const std::string& word : SplitIntoWords(text)) {
                 if (IsValidWord(word)) {
-                    stop_words_.insert(word);
+                    base_.push_back(std::string(word.begin(), word.end()));
+                    stop_words_.insert(base_.back());
                 }
                 else {
                     throw std::invalid_argument("Stop-word contains invalid characters");
@@ -99,11 +101,11 @@ private:
         std::vector<std::string_view> minus_words;
     };
 
-    std::set<std::string> stop_words_;
+    std::deque<std::string> base_;
+    std::set<std::string_view> stop_words_;
     std::set<int> document_ids_;
 
-    std::map<std::string, std::map<int, double>> word_to_document_freqs_;
-    std::map<std::string_view, std::map<int, double>, std::less<>> str_view_word_to_document_freqs_;
+    std::map<std::string_view, std::map<int, double>> str_view_word_to_document_freqs_;
 
     std::map<int, DocumentData> documents_;
     std::map<int, std::map<std::string_view, double>> ids_and_words_with_freqs;
@@ -116,13 +118,13 @@ private:
     static int ComputeAverageRating(const std::vector<int>& ratings);
 
     QueryWord ParseQueryWord(std::string_view texts) const;
-    
-    Query ParseQuery(const std::string_view& text) const;    
+
+    Query ParseQuery(const std::string_view& text) const;
     Query_vector ParseQuerySeq(const std::string_view& text) const;
     Query_vector ParseQueryPar(const std::string_view& text) const;
 
     // Считает долю документов в которых встречается слово из запроса
-    double ComputeWordInverseDocumentFreq(const std::string& word) const;
+    double ComputeWordInverseDocumentFreq(const std::string_view& word) const;
 
     // Методы поиска всех документов, удовлетворяющих запросу
     template <typename DocumentPredicate>
@@ -135,12 +137,12 @@ std::vector<Document> SearchServer::FindAllDocuments(const Query& query, Documen
     std::map<int, double> document_to_relevance;
     // расчитываем релевантность для каждого документа, где встречается слово из запроса
     for (const std::string_view& word : query.plus_words) {
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
             continue;
         }
-        const double inverse_document_freq = ComputeWordInverseDocumentFreq({ word.begin(), word.end() });
+        const double inverse_document_freq = ComputeWordInverseDocumentFreq(word);
 
-        for (const auto [document_id, term_freq] : word_to_document_freqs_.at({ word.begin(), word.end() })) {
+        for (const auto [document_id, term_freq] : str_view_word_to_document_freqs_.at(word)) {
             // Отфильтровываем документы по заданным условиям в функции key_filter
             if (document_predicate(document_id, documents_.at(document_id).status, documents_.at(document_id).rating)) {
                 document_to_relevance[document_id] += term_freq * inverse_document_freq;
@@ -149,10 +151,10 @@ std::vector<Document> SearchServer::FindAllDocuments(const Query& query, Documen
     }
     // убираем релевантности документов, которые содержат минус слова
     for (const std::string_view& word : query.minus_words) {
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
             continue;
         }
-        for (const auto [document_id, _] : word_to_document_freqs_.at({ word.begin(), word.end() })) {
+        for (const auto [document_id, _] : str_view_word_to_document_freqs_.at(word)) {
             document_to_relevance.erase(document_id);
         }
     }
