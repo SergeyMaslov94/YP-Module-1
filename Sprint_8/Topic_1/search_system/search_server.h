@@ -90,8 +90,8 @@ private:
     };
 
     struct Query {
-        std::set<std::string_view> plus_words;
-        std::set<std::string_view> minus_words;
+        std::set<std::string_view, std::less<>> plus_words;
+        std::set<std::string_view, std::less<>> minus_words;
     };
 
     struct Query_vector {
@@ -103,6 +103,7 @@ private:
     std::set<int> document_ids_;
 
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
+    std::map<std::string_view, std::map<int, double>, std::less<>> str_view_word_to_document_freqs_;
 
     std::map<int, DocumentData> documents_;
     std::map<int, std::map<std::string_view, double>> ids_and_words_with_freqs;
@@ -115,12 +116,10 @@ private:
     static int ComputeAverageRating(const std::vector<int>& ratings);
 
     QueryWord ParseQueryWord(std::string_view texts) const;
-    Query_vector ParseQueryWordSeq(std::vector<std::string_view> texts) const;
-    Query_vector ParseQueryWordParall(std::vector<std::string_view> texts) const;
-
-    Query ParseQuery(const std::string_view& text) const;
+    
+    Query ParseQuery(const std::string_view& text) const;    
     Query_vector ParseQuerySeq(const std::string_view& text) const;
-    Query_vector ParseQueryParall(const std::string_view& text) const;
+    Query_vector ParseQueryPar(const std::string_view& text) const;
 
     // Считает долю документов в которых встречается слово из запроса
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
@@ -209,7 +208,7 @@ void SearchServer::RemoveDocument(execution_type type, int document_id) {
     number_erased_element.resize(words.size());
     std::transform(type, words.begin(), words.end(), number_erased_element.begin(),
         [this, document_id](const std::string_view word) {
-            return word_to_document_freqs_.at({ word.begin(), word.end() }).erase(document_id);
+            return str_view_word_to_document_freqs_.at(word).erase(document_id);
         });
 
     ids_and_words_with_freqs.erase(document_id);

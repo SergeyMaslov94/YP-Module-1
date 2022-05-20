@@ -49,6 +49,7 @@ void SearchServer::AddDocument(
         }
         else {
             word_to_document_freqs_[{word.begin(), word.end()}][document_id] += inv_word_count;
+            str_view_word_to_document_freqs_[word][document_id] += inv_word_count;
             ids_and_words_with_freqs[document_id][std::string(word.begin(), word.end())] += inv_word_count;
         }
     }
@@ -95,39 +96,34 @@ void SearchServer::RemoveDocument(int document_id) {
 std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(const std::string_view & raw_query, int document_id) const {
     const Query_vector query = ParseQuerySeq(raw_query);
 
+    // Проверяю, содержится ли минус слова в документе с текущим id
     for (const std::string_view& word : query.minus_words) {
         if (IsEmptyWord(word)) {
             continue;
         }
 
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
             continue;
         }
 
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
+        if (str_view_word_to_document_freqs_.at(word).count(document_id)) {
             return { {}, documents_.at(document_id).status };
         }
     }
 
+    // Продолжаю обработку плюс слов в случае успеха
     std::vector<std::string_view> matched_words;
-
     for (const std::string_view& word : query.plus_words) {
         if (IsEmptyWord(word)) {
             continue;
         }
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
             continue;
         }
 
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
+        if (str_view_word_to_document_freqs_.at(word).count(document_id)) {
             matched_words.push_back(word);
         }
-    }
-
-    {
-        std::sort(matched_words.begin(), matched_words.end());
-        auto last = std::unique(matched_words.begin(), matched_words.end());
-        matched_words.erase(last, matched_words.end());
     }
 
     return { matched_words, documents_.at(document_id).status };
@@ -140,38 +136,33 @@ std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDoc
 
     const Query_vector query = ParseQuerySeq(raw_query);
 
+    // Проверяю, содержится ли минус слова в документе с текущим id
     for (const std::string_view& word : query.minus_words) {
         if (IsEmptyWord(word)) {
             continue;
         }
 
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
             continue;
         }
 
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
+        if (str_view_word_to_document_freqs_.at(word).count(document_id)) {
             return { {}, documents_.at(document_id).status };
         }
     }
 
-    std::vector<std::string_view> matched_words(query.plus_words.size());
-    std::transform(query.plus_words.begin(), query.plus_words.end(), matched_words.begin(), [this, document_id](std::string_view word) {
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
-            return std::string_view();
+    // Продолжаю обработку плюс слов в случае успеха
+    std::vector<std::string_view> matched_words;
+    for (const std::string_view& word : query.plus_words) {
+        if (IsEmptyWord(word)) {
+            continue;
         }
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
-            return word;
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
+            continue;
         }
-        return std::string_view();
-        }
-    );
 
-    {
-        std::sort(matched_words.begin(), matched_words.end());
-        auto last = std::unique(matched_words.begin(), matched_words.end());
-        matched_words.erase(last, matched_words.end());
-        if (!matched_words.empty() & IsEmptyWord(*matched_words.begin())) {
-            matched_words.erase(matched_words.begin());
+        if (str_view_word_to_document_freqs_.at(word).count(document_id)) {
+            matched_words.push_back(word);
         }
     }
 
@@ -183,36 +174,39 @@ std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDoc
     const std::string_view & raw_query,
     int document_id) const {
 
-    const Query_vector query = ParseQueryParall(raw_query);
+    const Query_vector query = ParseQueryPar(raw_query);
 
     // Проверяю, содержится ли минус слова в документе с текущим id
-    for (const std::string_view& word : query.minus_words) {
-        if (IsEmptyWord(word)) {
-            continue;
-        }
-
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
-            continue;
-        }
-
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
-            return { {}, documents_.at(document_id).status };
-        }
+    if (
+        std::any_of(std::execution::par, query.minus_words.begin(), query.minus_words.end(), [this, document_id](std::string_view word) {
+            if (word_to_document_freqs_.count({ word.begin(), word.end() }) != 0)
+            {
+                if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
+                    return true;
+                }
+            }
+            return false;
+            })
+        ) 
+    {
+        return { {}, documents_.at(document_id).status };
     }
-
+    
     // Продолжаю обработку плюс слов в случае успеха
     std::vector<std::string_view> matched_words(query.plus_words.size());
+
     std::transform(std::execution::par, query.plus_words.begin(), query.plus_words.end(), matched_words.begin(), [this, document_id](std::string_view word) {
-        if (word_to_document_freqs_.count({ word.begin(), word.end() }) == 0) {
+        if (str_view_word_to_document_freqs_.count(word) == 0) {
             return std::string_view();
         }
-        if (word_to_document_freqs_.at({ word.begin(), word.end() }).count(document_id)) {
+        if (str_view_word_to_document_freqs_.at(word).count(document_id)) {
             return word;
         }
         return std::string_view();
         }
     );
 
+    // Избавляюсь от дубликатов
     {
         std::sort(std::execution::par, matched_words.begin(), matched_words.end());
         auto last = std::unique(std::execution::par, matched_words.begin(), matched_words.end());
@@ -286,52 +280,6 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view text) cons
     return { text, is_minus, IsStopWord(text) };
 }
 
-SearchServer::Query_vector SearchServer::ParseQueryWordSeq(std::vector<std::string_view> texts) const {
-    Query_vector query;
-
-    query.minus_words.resize(texts.size());
-    query.plus_words.resize(texts.size());
-
-    std::transform(std::execution::seq, texts.begin(), texts.end(), query.plus_words.begin(), [this](std::string_view& text) {
-        if (!IsStopWord(text) && text[0] != '-') {
-            return text;
-        }
-        return std::string_view();
-        });
-
-    std::transform(std::execution::seq, texts.begin(), texts.end(), query.minus_words.begin(), [this](std::string_view& text) {
-        if (!IsStopWord(text) && text[0] == '-') {
-            return text.substr(1);
-        }
-        return std::string_view();
-        });
-
-    return query;
-}
-
-SearchServer::Query_vector SearchServer::ParseQueryWordParall(std::vector<std::string_view> texts) const {
-    Query_vector query;
-
-    query.minus_words.resize(texts.size());
-    query.plus_words.resize(texts.size());
-
-    std::transform(std::execution::par, texts.begin(), texts.end(), query.plus_words.begin(), [this](std::string_view& text) {
-        if (!IsStopWord(text) && text[0] != '-') {
-            return text;
-        }
-        return std::string_view();
-        });
-
-    std::transform(std::execution::par, texts.begin(), texts.end(), query.minus_words.begin(), [this](std::string_view& text) {
-        if (!IsStopWord(text) && text[0] == '-') {
-            return text.substr(1);
-        }
-        return std::string_view();
-        });
-
-    return query;
-}
-
 SearchServer::Query SearchServer::ParseQuery(const std::string_view & text) const {
     Query query;
     for (const std::string_view& word : SplitIntoWordsView(text)) {
@@ -349,12 +297,53 @@ SearchServer::Query SearchServer::ParseQuery(const std::string_view & text) cons
     return query;
 }
 
-SearchServer::Query_vector SearchServer::ParseQuerySeq(const std::string_view & text) const {
-    return ParseQueryWordSeq(SplitIntoWordsView(text));;
+SearchServer::Query_vector SearchServer::ParseQuerySeq(const std::string_view& text) const {
+    Query_vector query;
+    for (const std::string_view& word : SplitIntoWordsView(text)) {
+        const QueryWord query_word = ParseQueryWord(word);
+
+        if (!query_word.is_stop) {
+            if (query_word.is_minus) {
+                query.minus_words.push_back(query_word.data);
+            }
+            else {
+                query.plus_words.push_back(query_word.data);
+            }
+        }
+    }
+
+    // избавляюсь от дубликатов
+    {
+        std::sort(query.plus_words.begin(), query.plus_words.end());
+        auto last = std::unique(query.plus_words.begin(), query.plus_words.end());
+        query.plus_words.erase(last, query.plus_words.end());
+    }
+
+    {
+        std::sort(query.minus_words.begin(), query.minus_words.end());
+        auto last = std::unique(query.minus_words.begin(), query.minus_words.end());
+        query.minus_words.erase(last, query.minus_words.end());
+    }
+
+    return query;
 }
 
-SearchServer::Query_vector SearchServer::ParseQueryParall(const std::string_view & text) const {
-    return std::move(ParseQueryWordParall(std::move(SplitIntoWordsView(text))));
+SearchServer::Query_vector SearchServer::ParseQueryPar(const std::string_view& text) const {
+    Query_vector query;
+    for (const std::string_view& word : SplitIntoWordsView(text)) {
+        const QueryWord query_word = ParseQueryWord(word);
+
+        if (!query_word.is_stop) {
+            if (query_word.is_minus) {
+                query.minus_words.push_back(query_word.data);
+            }
+            else {
+                query.plus_words.push_back(query_word.data);
+            }
+        }
+    }
+
+    return query;
 }
 
 double SearchServer::ComputeWordInverseDocumentFreq(const std::string & word) const {

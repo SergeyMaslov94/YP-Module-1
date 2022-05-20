@@ -82,7 +82,7 @@ int benchmark_3() {
         search_server.AddDocument(i, documents[i], DocumentStatus::ACTUAL, { 1, 2, 3 });
     }
 
-    TEST(seq);
+    //TEST(seq);
     TEST(par);
    
     return 0;
