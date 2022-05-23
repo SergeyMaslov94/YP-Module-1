@@ -7,9 +7,15 @@
 //#include "Topic_1/lesson_5.hpp"
 //#include "Topic_1/lesson_6.hpp"
 //#include "Topic_1/lesson_7.hpp"
-#include "Topic_1/lesson_8.hpp"
+//#include "Topic_1/lesson_8.hpp"
+
+#include "Topic_2/theory_1.hpp"
+#include "Topic_2/lesson_1.hpp"
 //============================================
 int main() {
+	//============================================================================================================================
+	// ТЕМА 1: ПАРАЛЛЕЛЬНЫЕ АЛГОРИТМЫ
+
 	//lesson_1();  // применим макросы, чтобы измерить время последовательного и параллельного алгоритмов сортировки документов
 
 	// TRANSFORM_REDUCE!!! execution::par!!!!!
@@ -49,7 +55,15 @@ int main() {
 
 	// ПАРАЛЛЕЛИМ МЕТОДЫ ПОИСКОВОЙ СИСТЕМЫ
 	//lesson_7(); // SearchServer.RemoveDocument()
-	lesson_8(); // SearchServer.MatchDocument()
+	//lesson_8(); // SearchServer.MatchDocument()
+
+	//============================================================================================================================
+	// ТЕМА 2: АССИНХРОННЫЕ ВЫЧИСЛЕНИЯ
+	//theory_1();
+	lesson_1(); // ассинхронные вычисления
+
+
+
 
 	return 0;
 }

@@ -8,10 +8,9 @@
 using namespace std;
 
 int lesson_7() {
-    // ТЕСТ ПРОИЗВОДИТЕЛЬНОСТИ
+
     benchmark_2();
 
-    // ТЕСТ АЛГОРИТМА
     SearchServer search_server("and with"s);
 
     int id = 0;
@@ -35,13 +34,13 @@ int lesson_7() {
     };
 
     report();
-    // однопоточная версия
+
     search_server.RemoveDocument(5);
     report();
-    // однопоточная версия
+ 
     search_server.RemoveDocument(execution::seq, 1);
     report();
-    // многопоточная версия
+
     search_server.RemoveDocument(execution::par, 2);
     report();
 
