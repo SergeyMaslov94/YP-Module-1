@@ -11,11 +11,11 @@
 
 using namespace std;
 
-// максимальная величина числа
-// constexpr означает, что эта переменная вычисляется на этапе компиляции
+// РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ РІРµР»РёС‡РёРЅР° С‡РёСЃР»Р°
+// constexpr РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ СЌС‚Р° РїРµСЂРµРјРµРЅРЅР°СЏ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РЅР° СЌС‚Р°РїРµ РєРѕРјРїРёР»СЏС†РёРё
 constexpr int MAX_VALUE = 1000;
 
-// первая версия — с гонкой (БЫСТРО НО НЕ ВЕРНО)
+// РїРµСЂРІР°СЏ РІРµСЂСЃРёСЏ вЂ” СЃ РіРѕРЅРєРѕР№ (Р‘Р«РЎРўР Рћ РќРћ РќР• Р’Р•Р РќРћ)
 vector<int> CountFrequenciesForEachRace(const vector<int>& numbers) {
     vector<int> freqs(MAX_VALUE + 1);
     for_each(
@@ -25,7 +25,7 @@ vector<int> CountFrequenciesForEachRace(const vector<int>& numbers) {
     );
     return freqs;
 }
-// вторая версия — с mutex (ВЕРНО НО ДОЛГО)
+// РІС‚РѕСЂР°СЏ РІРµСЂСЃРёСЏ вЂ” СЃ mutex (Р’Р•Р РќРћ РќРћ Р”РћР›Р“Рћ)
 vector<int> CountFrequenciesForEachOneMutex(const vector<int>& numbers) {
     vector<int> freqs(MAX_VALUE + 1);
     mutex freqs_mutex;
@@ -40,7 +40,7 @@ vector<int> CountFrequenciesForEachOneMutex(const vector<int>& numbers) {
     return freqs;
 }
 
-// третья версия, с mutex в отношении конкретного элемента
+// С‚СЂРµС‚СЊСЏ РІРµСЂСЃРёСЏ, СЃ mutex РІ РѕС‚РЅРѕС€РµРЅРёРё РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 vector<int> CountFrequenciesForEachSeparateMutexes(const vector<int>& numbers) {
     vector<int> freqs(MAX_VALUE + 1);
     vector<mutex> freqs_mutexes(MAX_VALUE + 1);
@@ -55,7 +55,7 @@ vector<int> CountFrequenciesForEachSeparateMutexes(const vector<int>& numbers) {
     return freqs;
 }
 
-// случайные count чисел из диапазона [0, MAX_VALUE]
+// СЃР»СѓС‡Р°Р№РЅС‹Рµ count С‡РёСЃРµР» РёР· РґРёР°РїР°Р·РѕРЅР° [0, MAX_VALUE]
 vector<int> GenerateNumbers(mt19937& generator, int count, int max_value = MAX_VALUE) {
     vector<int> numbers(count);
     for (int& number : numbers) {
@@ -64,7 +64,7 @@ vector<int> GenerateNumbers(mt19937& generator, int count, int max_value = MAX_V
     return numbers;
 }
 
-// тестирует время работы и выводит сумму всех частот
+// С‚РµСЃС‚РёСЂСѓРµС‚ РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹ Рё РІС‹РІРѕРґРёС‚ СЃСѓРјРјСѓ РІСЃРµС… С‡Р°СЃС‚РѕС‚
 template <typename Function>
 void Test(string_view mark, const vector<int>& numbers, Function function) {
     vector<int> freqs;

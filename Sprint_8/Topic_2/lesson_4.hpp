@@ -51,20 +51,20 @@ void Test(string_view mark, Container keys, Function function) {
 
 template <typename ForwardRange, typename Function>
 void ForEachOld(ForwardRange& range, Function function) {
-    // ускорьте эту реализацию
+    // СѓСЃРєРѕСЂСЊС‚Рµ СЌС‚Сѓ СЂРµР°Р»РёР·Р°С†РёСЋ
     for_each(execution::par, range.begin(), range.end(), function);
 }
 
 template <typename ForwardRange, typename Function>
 void ForEach(ForwardRange& range, Function function) {
-    // ускорьте эту реализацию
+    // СѓСЃРєРѕСЂСЊС‚Рµ СЌС‚Сѓ СЂРµР°Р»РёР·Р°С†РёСЋ
 
-    /* вычислить количество элементов */
+    /* РІС‹С‡РёСЃР»РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ */
     size_t num_elements_ = range.size();
     size_t elements_processed = 0;
 
-    /* вычислить размер каждой части, разделив
-       количество элементов на количество задач */
+    /* РІС‹С‡РёСЃР»РёС‚СЊ СЂР°Р·РјРµСЂ РєР°Р¶РґРѕР№ С‡Р°СЃС‚Рё, СЂР°Р·РґРµР»РёРІ
+       РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡ */
     auto num_tasks = 2;
     int length_part = std::ceil(static_cast<float>(num_elements_) / num_tasks);
     auto num_part = std::floor(static_cast<float>(num_elements_) / length_part);
@@ -81,7 +81,7 @@ void ForEach(ForwardRange& range, Function function) {
 }
 
 int lesson_4() {
-    // для итераторов с произвольным доступом тоже должно работать
+    // РґР»СЏ РёС‚РµСЂР°С‚РѕСЂРѕРІ СЃ РїСЂРѕРёР·РІРѕР»СЊРЅС‹Рј РґРѕСЃС‚СѓРїРѕРј С‚РѕР¶Рµ РґРѕР»Р¶РЅРѕ СЂР°Р±РѕС‚Р°С‚СЊ
     vector<string> strings = { "cat", "dog", "code", "tor", "bob", "lol", "fuck", "pain", "train", "rop", "hot"};
 
     ForEach(strings, [](string& s) {
@@ -92,7 +92,7 @@ int lesson_4() {
         cout << s << " ";
     }
     cout << endl;
-    // вывод: tac god edoc
+    // РІС‹РІРѕРґ: tac god edoc
 
     mt19937 generator;
     const auto keys = GenerateDictionary<list>(generator, 1000, 500);
